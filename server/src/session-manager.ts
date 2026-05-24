@@ -67,7 +67,7 @@ class SessionManager {
       name: cfg.name,
       command: cfg.command,
       args: cfg.args ?? [],
-      cwd: cfg.cwd ?? (process.env.HOME || "/root"),
+      cwd: cfg.cwd ?? (process.env.HOME || process.env.USERPROFILE || "/root"),
       env: cfg.env ?? {},
       status: "stopped",
       pid: null,

@@ -23,7 +23,6 @@
     "name": "PowerShell",
     "description": "Windows PowerShell",
     "command": "powershell.exe",
-    "cwd": "%USERPROFILE%",
     "icon": "🔷",
     "platform": ["win32"],
     "group": "Shells"
