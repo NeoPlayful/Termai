@@ -40,9 +40,9 @@ Phase 3 架构：
 
 | 模块 | 新增/修改 | 说明 |
 |------|----------|------|
-| `web/src/stores/settingsStore.ts` | 新增 | 语言 + 主题状态管理，localStorage 持久化 |
-| `web/src/i18n/messages.ts` | 新增 | 翻译字典（zh-CN / en） |
-| `web/src/components/SettingsPanel.tsx` | 新增 | 设置面板（语言 + 主题选择器） |
+| `web/src/stores/settingsStore.ts` | 新增 | 语言 + 主题 + 字体大小状态管理，localStorage 持久化 |
+| `web/src/i18n/messages.ts` | 新增 | 翻译字典（zh-CN / en），含字体设置条目 |
+| `web/src/components/SettingsPanel.tsx` | 新增 | 设置面板（语言 + 主题 + 字体大小选择器） |
 | `web/src/components/Sidebar.tsx` | 修改 | 底部增加设置按钮 |
 | `web/src/App.tsx` | 修改 | 读取 settingsStore 应用主题 class |
 | `web/src/components/Terminal.tsx` | 修改 | 根据主题切换 xterm.js theme 配置 |
@@ -61,8 +61,10 @@ type Theme = "dark" | "light" | "system";
 interface SettingsState {
   language: Language;
   theme: Theme;
+  fontSize: number;
   setLanguage: (lang: Language) => void;
   setTheme: (theme: Theme) => void;
+  setFontSize: (size: number) => void;
 }
 ```
 
@@ -72,6 +74,7 @@ interface SettingsState {
 |-----|------|--------|------|
 | `termai-language` | `zh-CN \| en` | `zh-CN` | 语言偏好 |
 | `termai-theme` | `dark \| light \| system` | `dark` | 主题偏好，默认深色 |
+| `termai-font-size` | `number` | `13` | 终端字体大小（px），范围 10-24 |
 
 ---
 
@@ -107,6 +110,28 @@ function applyTheme(theme: Theme) {
 - 初始化时从 localStorage 读取
 - 切换时写入 localStorage + 即时应用
 - 监听 `prefers-color-scheme` change 事件（system 模式时）
+
+**fontSize 实现：**
+
+```typescript
+function getInitialFontSize(): number {
+  const stored = localStorage.getItem("termai-font-size");
+  if (stored) {
+    const n = parseInt(stored, 10);
+    if (!isNaN(n) && n >= 10 && n <= 24) return n;
+  }
+  return 13;
+}
+
+export const settingsStore = create<SettingsState>((set) => ({
+  ...
+  fontSize: getInitialFontSize(),
+  setFontSize: (fontSize) => {
+    localStorage.setItem("termai-font-size", String(fontSize));
+    set({ fontSize });
+  },
+}));
+```
 
 #### i18n 实现方案
 
@@ -269,6 +294,27 @@ const LIGHT_THEME = {
 term.options.theme = newTheme;
 ```
 
+#### 终端字体大小设置
+
+Terminal.tsx 监听 settingsStore 的 `fontSize` 字段，通过 `term.options.fontSize` 即时调整：
+
+```typescript
+// 在 xterm 初始化时读取 fontSize
+const fontSize = settingsStore.getState().fontSize;
+const term = new XTerm({ ..., fontSize });
+
+// 字体大小变化时，无需重建 xterm 实例
+useEffect(() => {
+  const term = xtermRef.current;
+  if (!term) return;
+  term.options.fontSize = fontSize;
+  // 触发 fitAddon.fit() 以重新计算终端尺寸
+  fitAddonRef.current?.fit();
+}, [fontSize]);
+```
+
+Terminal.tsx 变更：在组件内订阅 `settingsStore((s) => s.fontSize)`，值变化时更新 xterm 实例的 `fontSize` 选项。
+
 ### 4.3 UI 组件
 
 #### SettingsPanel.tsx
@@ -309,13 +355,36 @@ npm install @heroicons/react
 
 ```tsx
 import { Cog6ToothIcon, MoonIcon, SunIcon, ComputerDesktopIcon } from "@heroicons/react/24/outline";
-
-// 示例
-<Cog6ToothIcon className="w-4 h-4" />
-<MoonIcon className="w-4 h-4" />
 ```
 
 设置按钮 24x24 outline 风格，与深色/浅色主题联动。
+
+#### 设置面板布局（完整版）
+
+```
+┌──────────────────────────┐
+│ ⚙️ System Settings        │
+│                          │
+│ Language                 │
+│ [中文] [English]         │
+│                          │
+│ Theme                    │
+│ [🌙 Dark]                │
+│ [☀️ Light]               │
+│ [🖥️  Follow System]      │
+│                          │
+│ Font Size                │
+│ [−]  13px  [+]           │
+│   ──●───────  slider     │
+└──────────────────────────┘
+```
+
+字体大小控制：
+
+- 加减按钮：点击 ± 每次增减 1px
+- Slider：范围 10-24px
+- 默认值 13px
+- 变更即时生效，无需刷新
 
 #### Sidebar.tsx 变更
 
@@ -395,6 +464,13 @@ import { Cog6ToothIcon, MoonIcon, SunIcon, ComputerDesktopIcon } from "@heroicon
 | statusbar.cwd | CWD | CWD |
 | statusbar.uptime | 运行时间 | uptime |
 
+### 字体设置
+
+| key | zh-CN | en |
+|-----|-------|----|
+| settings.font_size | 字体大小 | Font Size |
+| settings.font_reset | 重置 | Reset |
+
 ---
 
 ## 六、边界情况与异常处理
@@ -439,6 +515,9 @@ import { Cog6ToothIcon, MoonIcon, SunIcon, ComputerDesktopIcon } from "@heroicon
 - [ ] 跟随系统模式随 OS 主题自动切换
 - [ ] 刷新页面后主题选择保持
 - [ ] 点击面板外部关闭设置面板
+- [ ] 字体大小加减按钮调整终端字号
+- [ ] 字体大小 slider 联动即时生效
+- [ ] 刷新页面后字体大小保持
 
 ---
 
@@ -448,6 +527,6 @@ import { Cog6ToothIcon, MoonIcon, SunIcon, ComputerDesktopIcon } from "@heroicon
 |------|------|------|
 | 日文/韩文等多语言 | 当前只支持中文和英文，后续按需扩展 | 后续优化 |
 | 字体设置 | 系统设置扩展功能 | 后续优化 |
-| 终端字号设置 | 可考虑加入设置面板 | 后续优化 |
+| 终端字号设置 | 本次已纳入设置面板 | v0.1.3 |
 | 服务端 i18n（错误消息翻译） | 前端优先，服务端后续补充 | 安全阶段后 |
 | 其他系统设置（如 scrollback 行数） | 暂不纳入 | 后续优化 |

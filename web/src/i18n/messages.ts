@@ -23,6 +23,8 @@ const zhCN: MessageDict = {
   "settings.dark": "深色模式",
   "settings.light": "浅色模式",
   "settings.system": "跟随系统",
+  "settings.font_size": "字体大小",
+  "settings.font_reset": "重置",
   // Modal - Create
   "modal.create": "新建会话",
   "modal.custom": "自定义",
@@ -61,7 +63,8 @@ const en: MessageDict = {
   "settings.dark": "Dark Mode",
   "settings.light": "Light Mode",
   "settings.system": "Follow System",
-  "modal.create": "New Session",
+  "settings.font_size": "Font Size",
+  "settings.font_reset": "Reset",
   "modal.custom": "Custom",
   "modal.back": "← Templates",
   "modal.cancel": "Cancel",

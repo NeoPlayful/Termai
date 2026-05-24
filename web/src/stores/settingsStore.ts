@@ -6,8 +6,10 @@ type Theme = "dark" | "light" | "system";
 interface SettingsState {
   language: Language;
   theme: Theme;
+  fontSize: number;
   setLanguage: (lang: Language) => void;
   setTheme: (theme: Theme) => void;
+  setFontSize: (size: number) => void;
 }
 
 function getInitialLanguage(): Language {
@@ -20,6 +22,15 @@ function getInitialTheme(): Theme {
   const stored = localStorage.getItem("termai-theme");
   if (stored === "dark" || stored === "light" || stored === "system") return stored;
   return "dark";
+}
+
+function getInitialFontSize(): number {
+  const stored = localStorage.getItem("termai-font-size");
+  if (stored) {
+    const n = parseInt(stored, 10);
+    if (!isNaN(n) && n >= 10 && n <= 24) return n;
+  }
+  return 13;
 }
 
 function getIsDark(theme: Theme): boolean {
@@ -50,6 +61,7 @@ mq.addEventListener("change", () => {
 export const settingsStore = create<SettingsState>((set) => ({
   language: getInitialLanguage(),
   theme: getInitialTheme(),
+  fontSize: getInitialFontSize(),
 
   setLanguage: (language) => {
     localStorage.setItem("termai-language", language);
@@ -60,6 +72,11 @@ export const settingsStore = create<SettingsState>((set) => ({
     localStorage.setItem("termai-theme", theme);
     set({ theme });
     applyTheme(theme);
+  },
+
+  setFontSize: (fontSize) => {
+    localStorage.setItem("termai-font-size", String(fontSize));
+    set({ fontSize });
   },
 }));
 

@@ -1,6 +1,9 @@
 import { settingsStore, useT } from "../stores/settingsStore.ts";
 import type { Language } from "../i18n/messages.ts";
-import { Cog6ToothIcon, MoonIcon, SunIcon, ComputerDesktopIcon } from "@heroicons/react/24/outline";
+import {
+  Cog6ToothIcon, MoonIcon, SunIcon, ComputerDesktopIcon,
+  MinusIcon, PlusIcon
+} from "@heroicons/react/24/outline";
 
 interface SettingsPanelProps {
   onClose: () => void;
@@ -20,8 +23,10 @@ const THEME_ICONS: Record<string, React.ReactNode> = {
 export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const language = settingsStore((s) => s.language);
   const theme = settingsStore((s) => s.theme);
+  const fontSize = settingsStore((s) => s.fontSize);
   const setLanguage = settingsStore((s) => s.setLanguage);
   const setTheme = settingsStore((s) => s.setTheme);
+  const setFontSize = settingsStore((s) => s.setFontSize);
   const t = useT();
 
   return (
@@ -71,6 +76,44 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                 <span>{t(`settings.${th}`)}</span>
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Font Size */}
+        <div>
+          <div className="text-xs text-gray-400 mb-2">{t("settings.font_size")}</div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setFontSize(Math.max(10, fontSize - 1))}
+              disabled={fontSize <= 10}
+              className="p-1 rounded text-gray-400 hover:text-gray-100 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <MinusIcon className="w-4 h-4" />
+            </button>
+            <span className="text-sm text-gray-100 w-10 text-center tabular-nums">{fontSize}px</span>
+            <button
+              onClick={() => setFontSize(Math.min(24, fontSize + 1))}
+              disabled={fontSize >= 24}
+              className="p-1 rounded text-gray-400 hover:text-gray-100 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <PlusIcon className="w-4 h-4" />
+            </button>
+            <div className="flex-1 mx-1">
+              <input
+                type="range"
+                min="10"
+                max="24"
+                value={fontSize}
+                onChange={(e) => setFontSize(Number(e.target.value))}
+                className="w-full accent-blue-500 h-1 cursor-pointer"
+              />
+            </div>
+            <button
+              onClick={() => setFontSize(13)}
+              className="text-2xs text-gray-500 hover:text-gray-300 transition-colors shrink-0"
+            >
+              {t("settings.font_reset")}
+            </button>
           </div>
         </div>
       </div>

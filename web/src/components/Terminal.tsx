@@ -41,6 +41,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
   const fitAddonRef = useRef<FitAddon | null>(null);
   const [status, setStatus] = useState("connecting");
   const currentTheme = settingsStore((s) => s.theme);
+  const currentFontSize = settingsStore((s) => s.fontSize);
 
   const onOutput = useCallback((data: string) => {
     xtermRef.current?.write(data);
@@ -71,7 +72,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     const term = new XTerm({
       cursorBlink: true,
       cursorStyle: "block",
-      fontSize: 13,
+      fontSize: currentFontSize,
       scrollback: 100000,
       fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
       theme: {
@@ -154,6 +155,14 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     term.options.theme = currentTheme === "dark" || currentTheme === "system"
       ? DARK_THEME : LIGHT_THEME;
   }, [currentTheme]);
+
+  // Sync xterm font size when settings change
+  useEffect(() => {
+    const term = xtermRef.current;
+    if (!term) return;
+    term.options.fontSize = currentFontSize;
+    fitAddonRef.current?.fit();
+  }, [currentFontSize]);
 
   return (
     <div className="flex flex-col h-full">
