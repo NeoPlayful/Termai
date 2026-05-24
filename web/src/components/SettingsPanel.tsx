@@ -33,15 +33,19 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-gray-800 rounded-lg p-5 w-80 border border-gray-700 shadow-xl"
+        className="rounded-lg p-5 w-80 shadow-xl"
+        style={{
+          backgroundColor: 'var(--bg-sidebar)',
+          border: '1px solid var(--border-default)',
+        }}
       >
-        <h2 className="text-sm font-semibold text-gray-100 mb-4 flex items-center gap-2">
+        <h2 className="text-sm font-semibold mb-4 flex items-center gap-2" style={{color: 'var(--text-primary)'}}>
           <Cog6ToothIcon className="w-4 h-4" />
           {t("settings.title")}
         </h2>
 
         <div className="mb-4">
-          <div className="text-xs text-gray-400 mb-2">{t("settings.language")}</div>
+          <div className="text-xs mb-2" style={{color: 'var(--text-secondary)'}}>{t("settings.language")}</div>
           <div className="flex gap-2">
             {LANGUAGES.map((l) => (
               <button
@@ -50,9 +54,12 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                 className={`flex-1 px-3 py-1.5 rounded text-sm transition-colors ${
                   language === l.value
                     ? "bg-blue-600 text-white"
-                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                    : "hover:opacity-80"
                 }`}
-              >
+                style={{
+                  backgroundColor: language === l.value ? 'var(--brand-blue)' : 'var(--bg-surface)',
+                  color: language === l.value ? '#ffffff' : 'var(--text-secondary)',
+                }}>
                 {l.labelKey}
               </button>
             ))}
@@ -60,7 +67,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         </div>
 
         <div className="mb-2">
-          <div className="text-xs text-gray-400 mb-2">{t("settings.theme")}</div>
+          <div className="text-xs mb-2" style={{color: 'var(--text-secondary)'}}>{t("settings.theme")}</div>
           <div className="space-y-1">
             {(["dark", "light", "system"] as const).map((th) => (
               <button
@@ -68,9 +75,13 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
                 onClick={() => setTheme(th)}
                 className={`w-full flex items-center gap-2 px-3 py-1.5 rounded text-sm transition-colors ${
                   theme === th
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  ? "text-white"
+                    : "hover:opacity-80"
                 }`}
+                style={{
+                  backgroundColor: theme === th ? 'var(--brand-blue)' : 'var(--bg-surface)',
+                  color: theme === th ? '#ffffff' : 'var(--text-secondary)',
+                }}
               >
                 <span className="w-5 h-5 flex items-center justify-center">{THEME_ICONS[th]}</span>
                 <span>{t(`settings.${th}`)}</span>
@@ -81,20 +92,22 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
 
         {/* Font Size */}
         <div>
-          <div className="text-xs text-gray-400 mb-2">{t("settings.font_size")}</div>
+          <div className="text-xs mb-2" style={{color: 'var(--text-secondary)'}}>{t("settings.font_size")}</div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setFontSize(Math.max(10, fontSize - 1))}
               disabled={fontSize <= 10}
-              className="p-1 rounded text-gray-400 hover:text-gray-100 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              style={{color: 'var(--text-muted)'}}
             >
               <MinusIcon className="w-4 h-4" />
             </button>
-            <span className="text-sm text-gray-100 w-10 text-center tabular-nums">{fontSize}px</span>
+            <span className="text-sm w-10 text-center tabular-nums" style={{color: 'var(--text-primary)'}}>{fontSize}px</span>
             <button
               onClick={() => setFontSize(Math.min(24, fontSize + 1))}
               disabled={fontSize >= 24}
-              className="p-1 rounded text-gray-400 hover:text-gray-100 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              style={{color: 'var(--text-muted)'}}
             >
               <PlusIcon className="w-4 h-4" />
             </button>
@@ -110,7 +123,8 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
             </div>
             <button
               onClick={() => setFontSize(16)}
-              className="text-2xs text-gray-500 hover:text-gray-300 transition-colors shrink-0"
+              className="text-2xs transition-colors shrink-0"
+              style={{color: 'var(--text-muted)'}}
             >
               {t("settings.font_reset")}
             </button>

@@ -24,7 +24,7 @@ export default function App() {
   }, [openTab]);
 
   return (
-    <div className="h-full flex" style={{backgroundColor: 'var(--bg-page)', color: 'var(--text)'}}>
+    <div className="h-full flex" style={{backgroundColor: 'var(--bg-page)', color: 'var(--text-primary)'}}>
       {/* Sidebar */}
       <Sidebar
         onSelectSession={handleSelectSession}

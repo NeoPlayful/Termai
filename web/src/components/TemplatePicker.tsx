@@ -42,8 +42,8 @@ export function TemplatePicker({ onSelect, onCustom }: TemplatePickerProps) {
   );
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 w-96 border border-gray-700">
-      <h2 className="text-sm font-semibold text-gray-100 mb-3">{t("modal.create")}</h2>
+    <div className="rounded-lg p-4 w-96 shadow-xl" style={{backgroundColor: 'var(--bg-sidebar)', border: '1px solid var(--border-default)'}}>
+      <h2 className="text-sm font-semibold mb-3" style={{color: 'var(--text-primary)'}}>{t("modal.create")}</h2>
 
       {loading && (
         <div className="text-xs text-gray-400 text-center py-8">{t("terminal.connecting")}</div>
@@ -57,7 +57,7 @@ export function TemplatePicker({ onSelect, onCustom }: TemplatePickerProps) {
 
       {!loading && sortedGroups.map(([group, items]) => (
         <div key={group} className="mb-3">
-          <div className="text-2xs text-gray-500 uppercase tracking-wider mb-1 px-1">
+          <div className="text-2xs uppercase tracking-wider mb-1 px-1" style={{color: 'var(--text-muted)'}}>
             {t("group." + group)}
           </div>
           <div className="grid grid-cols-1 gap-1">
@@ -65,8 +65,10 @@ export function TemplatePicker({ onSelect, onCustom }: TemplatePickerProps) {
               <button
                 key={tpl.id}
                 onClick={() => onSelect(tpl)}
-                className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-left
-                  text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-left transition-colors"
+                style={{color: 'var(--text-secondary)'}}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-session-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                 title={tpl.description}
               >
                 <span className="text-base">{tpl.icon ?? "▹"}</span>
@@ -77,11 +79,13 @@ export function TemplatePicker({ onSelect, onCustom }: TemplatePickerProps) {
         </div>
       ))}
 
-      <div className="border-t border-gray-700 pt-2 mt-1">
+      <div className="pt-2 mt-1" style={{borderTop: '1px solid var(--border-default)'}}>
         <button
           onClick={onCustom}
-          className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-gray-400
-            hover:bg-gray-700 hover:text-white transition-colors w-full"
+          className="flex items-center gap-2 px-2 py-1.5 rounded text-sm transition-colors w-full"
+          style={{color: 'var(--text-muted)'}}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-session-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
         >
           <PencilIcon className="w-4 h-4" />
           <span>{t("modal.custom")}</span>

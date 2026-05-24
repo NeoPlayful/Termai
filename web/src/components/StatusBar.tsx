@@ -26,7 +26,11 @@ export function StatusBar({ session }: StatusBarProps) {
   }, [session.createdAt]);
 
   return (
-    <div className="h-5 bg-gray-850 border-t border-gray-700 dark:border-gray-700 border-gray-200 flex items-center px-3 text-2xs text-gray-500 dark:text-gray-500 text-gray-400 gap-3 shrink-0">
+    <div className="h-5 flex items-center px-3 text-2xs gap-3 shrink-0" style={{
+      backgroundColor: 'var(--bg-tab-bar)',
+      borderTop: '1px solid var(--border-default)',
+      color: 'var(--text-muted)',
+    }}>
       <span>{session.id}</span>
       {session.pid && <span>PID: {session.pid}</span>}
       <span>CWD: {session.cwd}</span>

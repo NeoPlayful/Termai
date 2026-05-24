@@ -20,14 +20,14 @@ const DARK_THEME: ITheme = {
 };
 
 const LIGHT_THEME: ITheme = {
-  background: "#ffffff", foreground: "#1c1c1e", cursor: "#007aff",
-  selectionBackground: "#bfdaff",
-  black: "#1c1c1e", red: "#ff3b30", green: "#34c759",
-  yellow: "#ff9500", blue: "#007aff", magenta: "#af52de",
-  cyan: "#34aadc", white: "#f5f5f7",
-  brightBlack: "#8e8e93", brightRed: "#ff3b30", brightGreen: "#28cd41",
-  brightYellow: "#ff9500", brightBlue: "#007aff", brightMagenta: "#af52de",
-  brightCyan: "#34aadc", brightWhite: "#ffffff",
+  background: "#ffffff", foreground: "#111827", cursor: "#111827",
+  selectionBackground: "#dbeafe",
+  black: "#1f2937", red: "#dc2626", green: "#16a34a",
+  yellow: "#ca8a04", blue: "#2563eb", magenta: "#7c3aed",
+  cyan: "#0891b2", white: "#374151",
+  brightBlack: "#6b7280", brightRed: "#dc2626", brightGreen: "#16a34a",
+  brightYellow: "#ca8a04", brightBlue: "#2563eb", brightMagenta: "#7c3aed",
+  brightCyan: "#0891b2", brightWhite: "#111827",
 };
 
 interface TerminalViewProps {
@@ -74,7 +74,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
       cursorStyle: "block",
       fontSize: currentFontSize,
       scrollback: 100000,
-      fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+      fontFamily: "'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace",
       theme: {
         background: "#1a1b26",
         foreground: "#a9b1d6",
@@ -167,19 +167,17 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
   return (
     <div className="flex flex-col h-full">
       {/* Status bar */}
-      <div className="h-6 bg-gray-800 border-b border-gray-700 flex items-center px-3 text-xs">
-        <span
-          className={`w-2 h-2 rounded-full mr-2 ${
-            status === "connected"
-              ? "bg-green-500"
-              : "bg-gray-600"
-          }`}
-        />
-        <span className="text-gray-400">{sessionId}</span>
-        <span className="ml-auto text-gray-500">{status === "connected" ? "connected" : status}</span>
+      <div className="h-6 flex items-center px-3 text-xs" style={{
+        backgroundColor: 'var(--bg-tab-bar)',
+        borderBottom: '1px solid var(--border-default)',
+        color: 'var(--text-muted)',
+      }}>
+        <span className="w-2 h-2 rounded-full mr-2" style={{backgroundColor: status === "connected" ? 'var(--status-green)' : 'var(--text-muted)'}} />
+        <span style={{color: 'var(--text-secondary)'}}>{sessionId}</span>
+        <span className="ml-auto" style={{color: 'var(--text-muted)'}}>{status === "connected" ? "connected" : status}</span>
       </div>
       {/* Terminal - bg matches xterm theme to prevent white flash on init */}
-      <div ref={containerRef} className="flex-1 bg-[#1a1b26]" />
+      <div ref={containerRef} className="flex-1" style={{backgroundColor: 'var(--bg-terminal)'}} />
       {session && <StatusBar session={session} />}
     </div>
   );
