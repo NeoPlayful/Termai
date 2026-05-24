@@ -181,34 +181,86 @@ const t = useT();
 
 ### 4.2 主题实现
 
-#### Tailwind CSS dark mode（TailwindCSS 4）
+#### 深色模式配色方案
 
-TailwindCSS 4 使用 CSS 配置 dark mode class 策略，在 `index.css` 中配置：
+采用**高对比度深色风格**，取代原有的 Tokyo Night 配色：
+
+| Token | Tokyo Night（旧） | 深色模式（新） | 用途 |
+|-------|------------------|-----------------|------|
+| 背景 | `#1a1b26` 蓝紫黑 | `#000000` 纯黑 | 页面背景（OLED 友好） |
+| 面板 | `#1f2937` 蓝灰 | `#1c1c1e` | 侧栏、卡片、弹窗 |
+| 面板二级 | `#374151` | `#2c2c2e` | 按钮、标签栏 |
+| 悬停 | `#4b5563` | `#3a3a3c` | 按钮/列表 hover |
+| 主文字 | `#a9b1d6` 紫灰 | `#f5f5f7` 白 | 标题、正文 |
+| 次要文字 | `#9ca3af` | `#98989d` | 辅助文本、状态栏 |
+| 蓝色高亮 | `#3b82f6` / `#7aa2f7` | `#007aff` | 按钮、选中态、链接 |
+| 分割线 | `#374151` | `#38383a` | 边框、分割线 |
+
+选择理由：终端管理工具需要长时间使用，高对比度（纯黑底 + 纯白字）比 Tokyo Night 的蓝紫灰更护眼、更清晰。
+
+#### Tailwind 4 颜色变量映射
 
 ```css
-@import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
+/* 深色主题色板 */
+:root {
+  --color-gray-900: #000000;    /* 背景 - 纯黑 */
+  --color-gray-800: #1c1c1e;    /* 面板 */
+  --color-gray-700: #2c2c2e;    /* 面板二级 */
+  --color-gray-600: #3a3a3c;    /* 悬停 */
+  --color-gray-500: #98989d;    /* 次要文字 */
+  --color-gray-400: #98989d;    /* 次要文字 / 图标 */
+  --color-gray-300: #aeaeb2;    /* 不可用文字 */
+  --color-gray-200: #c7c7cc;    /* 禁用态 */
+  --color-gray-100: #f5f5f7;    /* 主文字 - 纯白 */
+  --color-gray-50:  #ffffff;    /* 最亮 */
+  --color-blue-600: #007aff;    /* 蓝色高亮 */
+}
 ```
 
-组件中使用 `dark:` 变体区分深浅色样式：
+#### 浅色模式色板
 
+```css
+.light {
+  --color-gray-900: #ffffff;      /* 纯白背景 */
+  --color-gray-800: #f2f2f7;     /* 面板 */
+  --color-gray-700: #e5e5ea;     /* 面板二级 */
+  --color-gray-600: #d1d1d6;     /* 悬停 */
+  --color-gray-500: #8e8e93;     /* 次要文字 */
+  --color-gray-400: #aeaeb2;     /* 图标 */
+  --color-gray-300: #c7c7cc;     /* 禁用态 */
+  --color-gray-100: #1c1c1e;     /* 主文字 */
+  --color-gray-50:  #000000;     /* 最深 */
+}
 ```
-bg-gray-800 dark:bg-gray-800 bg-white          ← 深色灰底，浅色白底
-text-gray-300 dark:text-gray-300 text-gray-700  ← 深色浅字，浅色深字
-```
-
-现有组件需要逐个添加浅色模式变体。
 
 #### xterm.js 主题联动
 
 Terminal.tsx 监听 settingsStore 的 theme 字段，重建 xterm 实例时切换 theme：
 
 ```typescript
-// 深色主题：Tokyo Night（现有）
-const DARK_THEME = { background: "#1a1b26", foreground: "#a9b1d6", ... };
+// 深色主题：高对比度风格
+const DARK_THEME = {
+  background: "#1c1c1e", foreground: "#f5f5f7", cursor: "#ffffff",
+  selectionBackground: "#007aff",
+  black: "#1c1c1e", red: "#ff453a", green: "#32d74b",
+  yellow: "#ffd60a", blue: "#007aff", magenta: "#bf5af2",
+  cyan: "#64d2ff", white: "#f5f5f7",
+  brightBlack: "#3a3a3c", brightRed: "#ff453a", brightGreen: "#30d158",
+  brightYellow: "#ffd60a", brightBlue: "#0a84ff", brightMagenta: "#bf5af2",
+  brightCyan: "#64d2ff", brightWhite: "#ffffff",
+};
 
-// 浅色主题：GitHub Light
-const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
+// 浅色主题：高对比度风格
+const LIGHT_THEME = {
+  background: "#ffffff", foreground: "#1c1c1e", cursor: "#007aff",
+  selectionBackground: "#bfdaff",
+  black: "#1c1c1e", red: "#ff3b30", green: "#34c759",
+  yellow: "#ff9500", blue: "#007aff", magenta: "#af52de",
+  cyan: "#34aadc", white: "#f5f5f7",
+  brightBlack: "#8e8e93", brightRed: "#ff3b30", brightGreen: "#28cd41",
+  brightYellow: "#ff9500", brightBlue: "#007aff", brightMagenta: "#af52de",
+  brightCyan: "#34aadc", brightWhite: "#ffffff",
+};
 ```
 
 当主题切换时，直接赋值即可（无需重建 xterm 实例）：

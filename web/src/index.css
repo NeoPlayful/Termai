@@ -7,31 +7,46 @@ html, body, #root {
   overflow: hidden;
 }
 
-/* Light mode: flip gray palette + restore white */
+/* Dark theme palette */
+:root {
+  --color-gray-950: #000000;
+  --color-gray-900: #000000;
+  --color-gray-800: #1c1c1e;
+  --color-gray-700: #2c2c2e;
+  --color-gray-600: #3a3a3c;
+  --color-gray-500: #98989d;
+  --color-gray-400: #98989d;
+  --color-gray-300: #aeaeb2;
+  --color-gray-200: #c7c7cc;
+  --color-gray-100: #f5f5f7;
+  --color-gray-50: #ffffff;
+}
+
+/* Light theme palette */
 .light {
-  --color-gray-50: #111827;
-  --color-gray-100: #1f2937;
-  --color-gray-200: #374151;
-  --color-gray-300: #4b5563;
-  --color-gray-400: #6b7280;
-  --color-gray-500: #9ca3af;
-  --color-gray-600: #d1d5db;
-  --color-gray-700: #e5e7eb;
-  --color-gray-800: #f3f4f6;
-  --color-gray-900: #f9fafb;
-  --color-white: #ffffff;
+  --color-gray-950: #ffffff;
+  --color-gray-900: #ffffff;
+  --color-gray-800: #f2f2f7;
+  --color-gray-700: #e5e5ea;
+  --color-gray-600: #d1d1d6;
+  --color-gray-500: #8e8e93;
+  --color-gray-400: #aeaeb2;
+  --color-gray-300: #c7c7cc;
+  --color-gray-200: #d1d1d6;
+  --color-gray-100: #1c1c1e;
+  --color-gray-50: #000000;
 }
 
 /* xterm.js scrollbar */
 .xterm-viewport {
   scrollbar-width: thin;
-  scrollbar-color: #33467c transparent;
+  scrollbar-color: #3a3a3c transparent;
 }
 .xterm-viewport::-webkit-scrollbar { width: 8px; }
 .xterm-viewport::-webkit-scrollbar-track { background: transparent; }
 .xterm-viewport::-webkit-scrollbar-thumb {
-  background: #33467c; border-radius: 4px; min-height: 40px;
+  background: #3a3a3c; border-radius: 4px; min-height: 40px;
 }
 .xterm-viewport::-webkit-scrollbar-thumb:hover {
-  background: #4a5b8f;
+  background: #48484a;
 }

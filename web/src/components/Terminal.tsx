@@ -9,23 +9,25 @@ import type { SessionMeta } from "../types.ts";
 import type { ITheme } from "@xterm/xterm";
 
 const DARK_THEME: ITheme = {
-  background: "#1a1b26", foreground: "#a9b1d6", cursor: "#c0caf5",
-  selectionBackground: "#33467c",
-  black: "#1d202f", red: "#f7768e", green: "#9ece6a", yellow: "#e0af68",
-  blue: "#7aa2f7", magenta: "#bb9af7", cyan: "#7dcfff", white: "#a9b1d6",
-  brightBlack: "#414868", brightRed: "#f7768e", brightGreen: "#9ece6a",
-  brightYellow: "#e0af68", brightBlue: "#7aa2f7", brightMagenta: "#bb9af7",
-  brightCyan: "#7dcfff", brightWhite: "#c0caf5",
+  background: "#1c1c1e", foreground: "#f5f5f7", cursor: "#ffffff",
+  selectionBackground: "#007aff",
+  black: "#1c1c1e", red: "#ff453a", green: "#32d74b",
+  yellow: "#ffd60a", blue: "#007aff", magenta: "#bf5af2",
+  cyan: "#64d2ff", white: "#f5f5f7",
+  brightBlack: "#3a3a3c", brightRed: "#ff453a", brightGreen: "#30d158",
+  brightYellow: "#ffd60a", brightBlue: "#0a84ff", brightMagenta: "#bf5af2",
+  brightCyan: "#64d2ff", brightWhite: "#ffffff",
 };
 
 const LIGHT_THEME: ITheme = {
-  background: "#ffffff", foreground: "#24292f", cursor: "#0969da",
-  selectionBackground: "#d0d7de",
-  black: "#24292f", red: "#cf222e", green: "#116329", yellow: "#9a6700",
-  blue: "#0969da", magenta: "#8250df", cyan: "#1b7c83", white: "#6e7781",
-  brightBlack: "#57606a", brightRed: "#a40e26", brightGreen: "#1a7f37",
-  brightYellow: "#633c01", brightBlue: "#218bff", brightMagenta: "#8250df",
-  brightCyan: "#3192aa", brightWhite: "#8c959f",
+  background: "#ffffff", foreground: "#1c1c1e", cursor: "#007aff",
+  selectionBackground: "#bfdaff",
+  black: "#1c1c1e", red: "#ff3b30", green: "#34c759",
+  yellow: "#ff9500", blue: "#007aff", magenta: "#af52de",
+  cyan: "#34aadc", white: "#f5f5f7",
+  brightBlack: "#8e8e93", brightRed: "#ff3b30", brightGreen: "#28cd41",
+  brightYellow: "#ff9500", brightBlue: "#007aff", brightMagenta: "#af52de",
+  brightCyan: "#34aadc", brightWhite: "#ffffff",
 };
 
 interface TerminalViewProps {
