@@ -146,12 +146,12 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
       <div className="border-t border-gray-700 p-2 flex items-center justify-between shrink-0">
         <button
           onClick={() => setShowSettings(true)}
-          className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
+          className="text-gray-100 hover:text-gray-50 transition-colors"
           title={t("sidebar.settings")}
         >
           <Cog6ToothIcon className="w-5 h-5" />
         </button>
-        <span className="text-3xs text-gray-600">v0.1.3</span>
+        <span className="text-3xs text-gray-400">v0.1.3</span>
       </div>
 
       {/* Create Modal */}

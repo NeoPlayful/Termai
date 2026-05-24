@@ -7,11 +7,6 @@ html, body, #root {
   overflow: hidden;
 }
 
-/* Dark mode: bg-white should be dark (same as gray-800) for themed surfaces */
-:root {
-  --color-white: #1f2937;
-}
-
 /* Light mode: flip gray palette + restore white */
 .light {
   --color-gray-50: #111827;
