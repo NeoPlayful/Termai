@@ -4,7 +4,29 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { useWebSocket } from "../hooks/useWebSocket.ts";
 import { StatusBar } from "./StatusBar.tsx";
+import { settingsStore } from "../stores/settingsStore.ts";
 import type { SessionMeta } from "../types.ts";
+import type { ITheme } from "@xterm/xterm";
+
+const DARK_THEME: ITheme = {
+  background: "#1a1b26", foreground: "#a9b1d6", cursor: "#c0caf5",
+  selectionBackground: "#33467c",
+  black: "#1d202f", red: "#f7768e", green: "#9ece6a", yellow: "#e0af68",
+  blue: "#7aa2f7", magenta: "#bb9af7", cyan: "#7dcfff", white: "#a9b1d6",
+  brightBlack: "#414868", brightRed: "#f7768e", brightGreen: "#9ece6a",
+  brightYellow: "#e0af68", brightBlue: "#7aa2f7", brightMagenta: "#bb9af7",
+  brightCyan: "#7dcfff", brightWhite: "#c0caf5",
+};
+
+const LIGHT_THEME: ITheme = {
+  background: "#ffffff", foreground: "#24292f", cursor: "#0969da",
+  selectionBackground: "#d0d7de",
+  black: "#24292f", red: "#cf222e", green: "#116329", yellow: "#9a6700",
+  blue: "#0969da", magenta: "#8250df", cyan: "#1b7c83", white: "#6e7781",
+  brightBlack: "#57606a", brightRed: "#a40e26", brightGreen: "#1a7f37",
+  brightYellow: "#633c01", brightBlue: "#218bff", brightMagenta: "#8250df",
+  brightCyan: "#3192aa", brightWhite: "#8c959f",
+};
 
 interface TerminalViewProps {
   sessionId: string;
@@ -16,6 +38,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const [status, setStatus] = useState("connecting");
+  const currentTheme = settingsStore((s) => s.theme);
 
   const onOutput = useCallback((data: string) => {
     xtermRef.current?.write(data);
@@ -121,6 +144,14 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
       xtermRef.current = null;
     };
   }, [sessionId, send]);
+
+  // Sync xterm theme when settings theme changes
+  useEffect(() => {
+    const term = xtermRef.current;
+    if (!term) return;
+    term.options.theme = currentTheme === "dark" || currentTheme === "system"
+      ? DARK_THEME : LIGHT_THEME;
+  }, [currentTheme]);
 
   return (
     <div className="flex flex-col h-full">

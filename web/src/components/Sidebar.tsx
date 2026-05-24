@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useSessionStore } from "../stores/sessionStore.ts";
 import { useTerminalStore } from "../stores/terminalStore.ts";
 import { TemplatePicker } from "./TemplatePicker.tsx";
+import { SettingsPanel } from "./SettingsPanel.tsx";
+import { useT } from "../stores/settingsStore.ts";
 
 interface SessionTemplate {
   id: string;
@@ -25,8 +27,10 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
   const { sessions, loading, createSession, deleteSession } = useSessionStore();
   const openTab = useTerminalStore((s) => s.openTab);
   const [showCreate, setShowCreate] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [mode, setMode] = useState<"picker" | "form">("picker");
   const [form, setForm] = useState({ id: "", name: "", command: "", cwd: "" });
+  const t = useT();
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -207,6 +211,7 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
           </div>
         </div>
       )}
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
     </aside>
   );
 }

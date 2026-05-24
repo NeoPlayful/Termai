@@ -41,6 +41,7 @@ Phase 3 架构：
 | 模块 | 新增/修改 | 说明 |
 |------|----------|------|
 | `web/src/stores/settingsStore.ts` | 新增 | 语言 + 主题状态管理，localStorage 持久化 |
+| `web/src/i18n/messages.ts` | 新增 | 翻译字典（zh-CN / en） |
 | `web/src/components/SettingsPanel.tsx` | 新增 | 设置面板（语言 + 主题选择器） |
 | `web/src/components/Sidebar.tsx` | 修改 | 底部增加设置按钮 |
 | `web/src/App.tsx` | 修改 | 读取 settingsStore 应用主题 class |
@@ -155,36 +156,48 @@ const messages: Record<Language, Record<string, string>> = {
 使用方式：
 
 ```typescript
-import { useSettingsStore } from "../stores/settingsStore.ts";
-const language = useSettingsStore((s) => s.language);
-const t = (key: string) => messages[language][key] ?? key;
+// settingsStore.ts 中暴露 useT hook
+export function useT() {
+  const language = useSettingsStore((s) => s.language);
+  return (key: string) => messages[language][key] ?? key;
+}
+
+// 组件中使用
+const t = useT();
 ```
+
+`useT()` 定义在 store 文件中，各组件直接导入，避免在每个组件内重复定义 `t` 函数。
 
 翻译涵盖范围：
 
-- 侧栏：标题、按钮、空状态提示
+- 侧栏：标题、按钮、空状态提示、设置入口
 - 标签栏：空状态提示
 - 终端：状态文字（connecting/connected/disconnected）
 - 模板选择面板：标题、分组名、Custom 按钮
 - 设置面板：标题、选项标签
 - 手动创建表单：标签、按钮
+- 状态栏：PID / CWD / uptime 标签
+- 模板分组名：Shells / AI Tools / Connections / Tools
 
 ### 4.2 主题实现
 
-#### Tailwind CSS dark mode
+#### Tailwind CSS dark mode（TailwindCSS 4）
 
-修改 `vite.config.ts` 或 `tailwind.config` 使用 class 策略：
+TailwindCSS 4 使用 CSS 配置 dark mode class 策略，在 `index.css` 中配置：
 
-```typescript
-// Tailwind dark mode: class strategy
-// document.documentElement.classList.toggle("dark", isDark);
+```css
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 ```
 
-所有深色样式已经通过 Tailwind 的 `dark:` 前缀生效：
-- `bg-gray-800` → 深色模式用，浅色模式加 `bg-white`
-- `text-gray-300` → 深色模式用，浅色模式加 `text-gray-700`
+组件中使用 `dark:` 变体区分深浅色样式：
 
-需要为每个组件添加浅色模式变体。
+```
+bg-gray-800 dark:bg-gray-800 bg-white          ← 深色灰底，浅色白底
+text-gray-300 dark:text-gray-300 text-gray-700  ← 深色浅字，浅色深字
+```
+
+现有组件需要逐个添加浅色模式变体。
 
 #### xterm.js 主题联动
 
@@ -198,7 +211,11 @@ const DARK_THEME = { background: "#1a1b26", foreground: "#a9b1d6", ... };
 const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
 ```
 
-当主题切换时，调用 `term.options.theme = newTheme`（无需重建 xterm 实例）。
+当主题切换时，直接赋值即可（无需重建 xterm 实例）：
+
+```typescript
+term.options.theme = newTheme;
+```
 
 ### 4.3 UI 组件
 
@@ -232,7 +249,7 @@ const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
 │  会话列表...          │
 │                      │
 │──────────────────────│
-│ ⚙️            v0.3.0 │  ← 新增：底部设置栏
+│ ⚙️            v0.1.3 │  ← 新增：底部设置栏
 └──────────────────────┘
 ```
 
@@ -284,6 +301,23 @@ const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
 | modal.cancel | 取消 | Cancel |
 | modal.create_btn | 创建 | Create |
 
+### 模板分组
+
+| key | zh-CN | en |
+|-----|-------|----|
+| group.Shells | Shells | Shells |
+| group.AI Tools | AI 工具 | AI Tools |
+| group.Connections | 连接 | Connections |
+| group.Tools | 工具 | Tools |
+
+### 状态栏
+
+| key | zh-CN | en |
+|-----|-------|----|
+| statusbar.pid | PID | PID |
+| statusbar.cwd | CWD | CWD |
+| statusbar.uptime | 运行时间 | uptime |
+
 ---
 
 ## 六、边界情况与异常处理
@@ -309,13 +343,13 @@ const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
 | # | 交付物 | 状态 |
 |---|--------|------|
 | 1 | 第三阶段开发计划（本文档） | ✅ |
-| 2 | `web/src/stores/settingsStore.ts` — 设置状态管理 | ⬜ |
-| 3 | `web/src/i18n/messages.ts` — 翻译字典 | ⬜ |
-| 4 | `web/src/components/SettingsPanel.tsx` — 设置面板 | ⬜ |
-| 5 | Sidebar.tsx 改造 — 底部设置入口 | ⬜ |
-| 6 | App.tsx 改造 — 应用主题 class | ⬜ |
-| 7 | Terminal.tsx 改造 — 主题联动 | ⬜ |
-| 8 | index.css + 各组件 — 浅色模式样式 | ⬜ |
+| 2 | `web/src/stores/settingsStore.ts` — 设置状态管理 | ✅ |
+| 3 | `web/src/i18n/messages.ts` — 翻译字典 | ✅ |
+| 4 | `web/src/components/SettingsPanel.tsx` — 设置面板 | ✅ |
+| 5 | Sidebar.tsx 改造 — 底部设置入口 | ✅ |
+| 6 | App.tsx 改造 — 应用主题 class | ✅ |
+| 7 | Terminal.tsx 改造 — 主题联动 | ✅ |
+| 8 | index.css + 各组件 — 浅色模式样式 | ✅ |
 
 **功能验证清单：**
 

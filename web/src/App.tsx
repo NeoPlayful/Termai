@@ -24,7 +24,7 @@ export default function App() {
   }, [openTab]);
 
   return (
-    <div className="h-full flex bg-gray-900 text-white">
+    <div className="h-full flex bg-gray-900 dark:bg-gray-900 bg-white text-white dark:text-white text-gray-900">
       {/* Sidebar */}
       <Sidebar
         onSelectSession={handleSelectSession}
