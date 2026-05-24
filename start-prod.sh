@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+DIR="$(cd "$(dirname "$0")" && pwd)"
+
 echo "========================================"
 echo "  Termai Manager - Production Mode"
 echo "========================================"
@@ -13,23 +15,23 @@ if ! command -v node &> /dev/null; then
 fi
 
 echo "[1/5] Installing server dependencies..."
-cd "$(dirname "$0")/server"
+cd "$DIR/server"
 npm install
 
 echo "[2/5] Installing web dependencies..."
-cd "$(dirname "$0")/web"
+cd "$DIR/web"
 npm install
 
 echo "[3/5] Building web app..."
-cd "$(dirname "$0")/web"
+cd "$DIR/web"
 npm run build
 
 echo "[4/5] Building server..."
-cd "$(dirname "$0")/server"
+cd "$DIR/server"
 npm run build
 
 echo "[5/5] Starting production server..."
-cd "$(dirname "$0")/server"
+cd "$DIR/server"
 node dist/index.js &
 SERVER_PID=$!
 
