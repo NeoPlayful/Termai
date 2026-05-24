@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+DIR="$(cd "$(dirname "$0")" && pwd)"
+
 echo "========================================"
 echo "  Termai Manager - Development Mode"
 echo "========================================"
@@ -13,20 +15,20 @@ if ! command -v node &> /dev/null; then
 fi
 
 echo "[1/4] Installing server dependencies..."
-cd "$(dirname "$0")/server"
+cd "$DIR/server"
 npm install
 
 echo "[2/4] Installing web dependencies..."
-cd "$(dirname "$0")/web"
+cd "$DIR/web"
 npm install
 
 echo "[3/4] Starting server (port 6688)..."
-cd "$(dirname "$0")/server"
+cd "$DIR/server"
 npm run dev &
 SERVER_PID=$!
 
 echo "[4/4] Starting web dev server (port 5173)..."
-cd "$(dirname "$0")/web"
+cd "$DIR/web"
 npm run dev &
 WEB_PID=$!
 
