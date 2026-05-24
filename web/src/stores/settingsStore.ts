@@ -30,7 +30,7 @@ function getInitialFontSize(): number {
     const n = parseInt(stored, 10);
     if (!isNaN(n) && n >= 10 && n <= 24) return n;
   }
-  return 13;
+  return 16;
 }
 
 function getIsDark(theme: Theme): boolean {

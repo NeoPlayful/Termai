@@ -109,7 +109,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
               />
             </div>
             <button
-              onClick={() => setFontSize(13)}
+              onClick={() => setFontSize(16)}
               className="text-2xs text-gray-500 hover:text-gray-300 transition-colors shrink-0"
             >
               {t("settings.font_reset")}

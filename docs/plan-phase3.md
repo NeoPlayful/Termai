@@ -74,7 +74,7 @@ interface SettingsState {
 |-----|------|--------|------|
 | `termai-language` | `zh-CN \| en` | `zh-CN` | 语言偏好 |
 | `termai-theme` | `dark \| light \| system` | `dark` | 主题偏好，默认深色 |
-| `termai-font-size` | `number` | `13` | 终端字体大小（px），范围 10-24 |
+| `termai-font-size` | `number` | `16` | 终端字体大小（px），范围 10-24 |
 
 ---
 
@@ -383,7 +383,8 @@ import { Cog6ToothIcon, MoonIcon, SunIcon, ComputerDesktopIcon } from "@heroicon
 
 - 加减按钮：点击 ± 每次增减 1px
 - Slider：范围 10-24px
-- 默认值 13px
+- 默认值 16px
+- 重置按钮恢复 16px
 - 变更即时生效，无需刷新
 
 #### Sidebar.tsx 变更
