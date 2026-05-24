@@ -91,7 +91,10 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
         <h1 className="text-sm font-semibold" style={{color: 'var(--text-primary)'}}>Termai</h1>
         <button
           onClick={openCreate}
-          className="text-xs bg-blue-600 hover:bg-blue-500 px-2 py-1 rounded"
+          className="text-xs px-2 py-1 rounded text-white transition-colors"
+          style={{backgroundColor: 'var(--brand-blue)'}}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--brand-blue-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--brand-blue)'}
         >
           + New
         </button>
