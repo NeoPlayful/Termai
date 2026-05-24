@@ -1,7 +1,20 @@
-import { useEffect } from "react";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import { useEffect, type ReactNode } from "react";
+import {
+  PencilIcon, CodeBracketIcon, CommandLineIcon, Square2StackIcon,
+  SparklesIcon, GlobeAltIcon, ServerStackIcon, ChartBarSquareIcon,
+} from "@heroicons/react/24/outline";
 import { useTemplateStore } from "../stores/templateStore.ts";
 import { useT } from "../stores/settingsStore.ts";
+
+const ICON_MAP: Record<string, ReactNode> = {
+  CodeBracket: <CodeBracketIcon className="w-4 h-4" />,
+  CommandLine: <CommandLineIcon className="w-4 h-4" />,
+  Square2Stack: <Square2StackIcon className="w-4 h-4" />,
+  Sparkles: <SparklesIcon className="w-4 h-4" />,
+  GlobeAlt: <GlobeAltIcon className="w-4 h-4" />,
+  ServerStack: <ServerStackIcon className="w-4 h-4" />,
+  ChartBarSquare: <ChartBarSquareIcon className="w-4 h-4" />,
+};
 
 interface SessionTemplate {
   id: string;
@@ -71,7 +84,7 @@ export function TemplatePicker({ onSelect, onCustom }: TemplatePickerProps) {
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                 title={tpl.description}
               >
-                <span className="text-base">{tpl.icon ?? "▹"}</span>
+                <span className="w-5 h-5 flex items-center justify-center shrink-0">{ICON_MAP[tpl.icon ?? ""] ?? <CodeBracketIcon className="w-4 h-4" />}</span>
                 <span>{tpl.name}</span>
               </button>
             ))}

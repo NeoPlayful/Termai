@@ -85,15 +85,15 @@ html, body, #root {
 /* xterm.js scrollbar */
 .xterm-viewport {
   scrollbar-width: thin;
-  scrollbar-color: #3a3a3c transparent;
+  scrollbar-color: #636366 transparent;
 }
 .xterm-viewport::-webkit-scrollbar { width: 8px; }
 .xterm-viewport::-webkit-scrollbar-track { background: transparent; }
 .xterm-viewport::-webkit-scrollbar-thumb {
-  background: #3a3a3c; border-radius: 4px; min-height: 40px;
+  background: #636366; border-radius: 4px; min-height: 40px;
 }
 .xterm-viewport::-webkit-scrollbar-thumb:hover {
-  background: #48484a;
+  background: #78787a;
 }
 
 /* Mobile sidebar drawer */

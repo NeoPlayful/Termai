@@ -77,7 +77,7 @@ export function Sidebar({ onSelectSession, activeSessionId, isOpen, isDrawer, on
         height: "100%",
       };
 
-  return (
+  return (<>
     <aside style={asideStyle}>
       <div className="p-3 flex items-center justify-between shrink-0" style={{borderBottom: '1px solid var(--border-default)'}}>
         <h1 className="text-sm font-semibold" style={{color: 'var(--text-primary)'}}>Termai</h1>
@@ -123,6 +123,7 @@ export function Sidebar({ onSelectSession, activeSessionId, isOpen, isDrawer, on
         <span className="text-3xs" style={{color: 'var(--text-muted)'}}>v0.1.3</span>
       </div>
 
+      </aside>
       {showCreate && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { setShowCreate(false); setMode("picker"); }}>
           <div onClick={(e) => e.stopPropagation()}>
@@ -157,6 +158,6 @@ export function Sidebar({ onSelectSession, activeSessionId, isOpen, isDrawer, on
         </div>
       )}
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
-    </aside>
+    </>
   );
 }
