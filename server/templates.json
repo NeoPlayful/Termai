@@ -33,8 +33,25 @@
     "args": ["--dangerously-skip-permissions"],
     "env": { "TERM": "xterm-256color" },
     "icon": "Sparkles",
-    "platform": ["linux", "darwin"],
     "group": "AI Tools"
+  },
+  {
+    "id": "claude-code-auto",
+    "name": "Claude Code (Auto)",
+    "description": "Claude Code 自动权限模式",
+    "command": "claude",
+    "args": ["--permission-mode", "auto"],
+    "env": { "TERM": "xterm-256color" },
+    "icon": "Sparkles",
+    "group": "AI Tools"
+  },
+  {
+    "id": "hermes",
+    "name": "Hermes",
+    "description": "Hermes 终端",
+    "command": "hermes",
+    "icon": "CommandLine",
+    "group": "Tools"
   },
   {
     "id": "ssh-server",

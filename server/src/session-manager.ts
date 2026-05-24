@@ -1,4 +1,5 @@
 import { spawn, type IPty } from "node-pty";
+import { execSync } from "node:child_process";
 import { config } from "./config.js";
 import * as db from "./db.js";
 import type { SessionMeta, SessionConfig, SessionStatus } from "./types.js";
@@ -99,13 +100,40 @@ class SessionManager {
       ...session.env,
     };
 
-    const pty = spawn(session.command, session.args, {
-      name: "xterm-256color",
-      cols: 80,
-      rows: 24,
-      cwd: session.cwd,
-      env: env as Record<string, string>,
-    });
+    let pty: IPty;
+    let command = session.command;
+    let args = session.args;
+
+    // On Windows, resolve .cmd scripts (e.g. claude → claude.cmd)
+    // node-pty can't launch .cmd files directly, so wrap with cmd.exe /c
+    if (process.platform === "win32") {
+      try {
+        // Check if command exists as a .cmd file via `where`
+        execSync(`where "${command}.cmd"`, { encoding: "utf8", stdio: "pipe" });
+        // If we get here, .cmd exists — wrap with cmd.exe /c
+        command = "cmd.exe";
+        args = ["/c", session.command, ...session.args];
+      } catch { /* command is not a .cmd, proceed with normal spawn */ }
+    }
+
+    try {
+      pty = spawn(command, args, {
+        name: "xterm-256color",
+        cols: 80,
+        rows: 24,
+        cwd: session.cwd,
+        env: env as Record<string, string>,
+      });
+    } catch (err) {
+      const msg = JSON.stringify({
+        type: "error",
+        message: `Failed to start "${session.command}": ${err instanceof Error ? err.message : "Unknown error"}`,
+      });
+      for (const client of session.clients) {
+        try { client.send(msg); } catch { /* ignore */ }
+      }
+      return;
+    }
 
     session.pty = pty;
     session.pid = pty.pid;
@@ -216,6 +244,17 @@ class SessionManager {
 
     session.clients.add(client);
     db.upsertSession({ ...session, clientCount: session.clients.size });
+
+    // If PTY failed to start, notify client
+    if (!session.pty) {
+      try {
+        client.send(JSON.stringify({
+          type: "error",
+          message: `Command "${session.command}" not found or failed to start`,
+        }));
+      } catch { /* ignore */ }
+      return;
+    }
 
     // Send scrollback history
     for (const chunk of session.scrollback) {
