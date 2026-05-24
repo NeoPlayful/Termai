@@ -3,12 +3,15 @@ import { Terminal as XTerm } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { useWebSocket } from "../hooks/useWebSocket.ts";
+import { StatusBar } from "./StatusBar.tsx";
+import type { SessionMeta } from "../types.ts";
 
 interface TerminalViewProps {
   sessionId: string;
+  session: SessionMeta | null;
 }
 
-export const TerminalView = memo(function TerminalView({ sessionId }: TerminalViewProps) {
+export const TerminalView = memo(function TerminalView({ sessionId, session }: TerminalViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -44,6 +47,7 @@ export const TerminalView = memo(function TerminalView({ sessionId }: TerminalVi
       cursorBlink: true,
       cursorStyle: "block",
       fontSize: 13,
+      scrollback: 100000,
       fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
       theme: {
         background: "#1a1b26",
@@ -134,6 +138,7 @@ export const TerminalView = memo(function TerminalView({ sessionId }: TerminalVi
       </div>
       {/* Terminal - bg matches xterm theme to prevent white flash on init */}
       <div ref={containerRef} className="flex-1 bg-[#1a1b26]" />
+      {session && <StatusBar session={session} />}
     </div>
   );
 });

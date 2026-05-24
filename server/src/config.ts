@@ -9,6 +9,7 @@ interface Config {
   dbPath: string;
   scrollbackSize: number;
   webDir: string;
+  templatesPath: string;
 }
 
 function loadConfig(): Config {
@@ -19,8 +20,9 @@ function loadConfig(): Config {
     authToken: null,
     maxSessions: 10,
     dbPath: resolve(process.cwd(), "data", "sessions.db"),
-    scrollbackSize: 2000,
+    scrollbackSize: 100000,
     webDir: resolve(process.cwd(), "..", "web", "dist"),
+    templatesPath: "templates.json",
   };
 
   if (existsSync(configPath)) {

@@ -6,6 +6,7 @@ import { existsSync } from "node:fs";
 import { config } from "./config.js";
 import { sessionManager } from "./session-manager.js";
 import { registerTerminalWS } from "./terminal-ws.js";
+import { getTemplates } from "./templates.js";
 import type { CreateSessionRequest } from "./types.js";
 
 const fastify = Fastify({ logger: true });
@@ -83,6 +84,23 @@ fastify.post<{ Params: { id: string } }>(
     }
     sessionManager.restart(req.params.id);
     return { status: "restarted" };
+  }
+);
+
+// GET /api/templates
+fastify.get("/api/templates", async () => {
+  return getTemplates();
+});
+
+// GET /api/sessions/:id
+fastify.get<{ Params: { id: string } }>(
+  "/api/sessions/:id",
+  async (req, reply) => {
+    const session = sessionManager.list().find((s) => s.id === req.params.id);
+    if (!session) {
+      return reply.status(404).send({ error: "Session not found" });
+    }
+    return session;
   }
 );
 
