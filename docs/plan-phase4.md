@@ -41,13 +41,12 @@ Phase 4 架构（桌面 + 移动端）：
 |------|----------|------|
 | `web/public/manifest.json` | 新增 | PWA manifest（名称、图标、主题色） |
 | `web/public/icons/` | 新增 | PWA 图标（192x192, 512x512） |
-| `web/sw.js` | 新增 | Service Worker（离线缓存策略） |
 | `web/src/hooks/useResponsive.ts` | 新增 | 屏幕尺寸检测 + 断点逻辑 |
 | `web/src/hooks/useSwipe.ts` | 新增 | 触控滑动检测（切换标签） |
 | `web/src/components/MobileNav.tsx` | 新增 | 移动端底部导航栏 |
 | `web/src/components/Sidebar.tsx` | 修改 | 移动端改为抽屉式 |
-| `web/src/index.html` | 修改 | 添加 PWA meta 标签 |
-| `web/vite.config.ts` | 修改 | PWA 相关构建配置 |
+| `web/index.html` | 修改 | 添加 PWA meta 标签（`<meta name="theme-color">` + `<link rel="manifest">`） |
+| `web/vite.config.ts` | 修改 | 集成 vite-plugin-pwa，SW 自动生成到 dist/sw.js |
 
 ---
 
@@ -94,7 +93,13 @@ Phase 4 架构（桌面 + 移动端）：
 }
 ```
 
-#### Vite PWA 配置
+#### index.html PWA 标签
+
+```html
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+<link rel="manifest" href="/manifest.json" />
+```
 
 使用 `vite-plugin-pwa` 自动生成 Service Worker：
 
@@ -282,7 +287,7 @@ if ("visualViewport" in window) {
 | Android Chrome | PWA 安装提示，全屏显示 | manifest.json |
 | 离线访问 | 显示离线提示，Service Worker 返回缓存页面 | sw.js |
 | 触屏误触 | 点击终端区域延迟触发键盘，防止误弹出 | Terminal.tsx |
-| 多指手势 | 双指操作缩放终端，单指操作输入 | useSwipe.ts |
+| 多指手势 | 双指操作缩放终端，单指操作输入 | Terminal.tsx |
 | 屏幕旋转 | 布局即时适配，终端重新计算尺寸 | useResponsive.ts + fitAddon.fit() |
 
 ---
@@ -293,7 +298,13 @@ if ("visualViewport" in window) {
 |------|------|
 | `vite-plugin-pwa` | PWA + Service Worker 自动生成 |
 
-无需其他新增依赖。图标可使用 SVG 内联或 Heroicons（已在项目中）。
+安装：
+
+```bash
+cd web && npm install -D vite-plugin-pwa
+```
+
+无需其他新增依赖。`@heroicons/react` 已在第三阶段安装，Heroicons 图标可直接使用。
 
 ---
 

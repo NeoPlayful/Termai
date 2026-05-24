@@ -95,3 +95,24 @@ html, body, #root {
 .xterm-viewport::-webkit-scrollbar-thumb:hover {
   background: #48484a;
 }
+
+/* Mobile sidebar drawer */
+@media (max-width: 639px) {
+  .sidebar-desktop { display: none; }
+}
+
+/* Prevent body scroll on mobile when sidebar open */
+body.sidebar-open {
+  overflow: hidden;
+}
+
+/* Tab scroll container */
+.tab-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tab-scroll::-webkit-scrollbar { display: none; }
+
+/* Font size utility */
+.text-2xs { font-size: 0.65rem; line-height: 1rem; }
+.text-3xs { font-size: 0.6rem; line-height: 0.85rem; }

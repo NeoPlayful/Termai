@@ -164,6 +164,19 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     fitAddonRef.current?.fit();
   }, [currentFontSize]);
 
+  // Mobile: handle virtual keyboard showing/hiding
+  useEffect(() => {
+    const vp = (window as unknown as { visualViewport?: { height: number } }).visualViewport;
+    if (!vp) return;
+    const handler = () => {
+      if (!containerRef.current) return;
+      const diff = window.innerHeight - vp.height;
+      containerRef.current.style.marginBottom = diff > 100 ? diff + "px" : "0";
+    };
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+
   return (
     <div className="flex flex-col h-full">
       {/* Status bar */}
