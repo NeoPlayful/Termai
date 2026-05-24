@@ -120,7 +120,7 @@ export function Sidebar({ onSelectSession, activeSessionId, isOpen, isDrawer, on
           style={{color: 'var(--text-muted)'}} title={t("sidebar.settings")}>
           <Cog6ToothIcon className="w-5 h-5" />
         </button>
-        <span className="text-3xs" style={{color: 'var(--text-muted)'}}>v0.1.3</span>
+        <span className="text-3xs" style={{color: 'var(--text-muted)'}}>v0.1.4</span>
       </div>
 
       </aside>
