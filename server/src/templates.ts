@@ -16,13 +16,13 @@ export interface SessionTemplate {
 }
 
 const DEFAULT_TEMPLATES: SessionTemplate[] = [
-  { id: "bash", name: "Bash Shell", description: "标准 Bash 终端", command: "bash", cwd: "~", icon: "🐚", group: "Shells" },
-  { id: "cmd", name: "Command Prompt", description: "Windows 命令提示符", command: "cmd.exe", cwd: "%USERPROFILE%", icon: "🪟", platform: ["win32"], group: "Shells" },
-  { id: "powershell", name: "PowerShell", description: "Windows PowerShell", command: "powershell.exe", icon: "🔷", platform: ["win32"], group: "Shells" },
-  { id: "claude-code", name: "Claude Code", description: "AI 编程助手", command: "claude", args: ["--dangerously-skip-permissions"], cwd: "~", env: { TERM: "xterm-256color" }, icon: "🤖", platform: ["linux", "darwin"], group: "AI Tools" },
-  { id: "ssh-routeros", name: "SSH RouterOS", description: "连接到 MikroTik 路由器", command: "ssh", args: ["admin@192.168.88.1"], cwd: "~", icon: "🌐", group: "Connections" },
-  { id: "ssh-server", name: "SSH Remote Server", description: "连接到远程 Linux 服务器", command: "ssh", args: ["user@server.example.com"], cwd: "~", icon: "🖥️", group: "Connections" },
-  { id: "htop", name: "System Monitor (htop)", description: "实时系统监控", command: "htop", icon: "📊", group: "Tools" },
+  { id: "bash", name: "Bash Shell", description: "标准 Bash 终端", command: "bash", cwd: "~", icon: "CodeBracket", group: "Shells" },
+  { id: "cmd", name: "Command Prompt", description: "Windows 命令提示符", command: "cmd.exe", cwd: "%USERPROFILE%", icon: "CommandLine", platform: ["win32"], group: "Shells" },
+  { id: "powershell", name: "PowerShell", description: "Windows PowerShell", command: "powershell.exe", icon: "Square2Stack", platform: ["win32"], group: "Shells" },
+  { id: "claude-code", name: "Claude Code", description: "AI 编程助手", command: "claude", args: ["--dangerously-skip-permissions"], cwd: "~", env: { TERM: "xterm-256color" }, icon: "Sparkles", platform: ["linux", "darwin"], group: "AI Tools" },
+  { id: "ssh-routeros", name: "SSH RouterOS", description: "连接到 MikroTik 路由器", command: "ssh", args: ["admin@192.168.88.1"], cwd: "~", icon: "GlobeAlt", group: "Connections" },
+  { id: "ssh-server", name: "SSH Remote Server", description: "连接到远程 Linux 服务器", command: "ssh", args: ["user@server.example.com"], cwd: "~", icon: "ServerStack", group: "Connections" },
+  { id: "htop", name: "System Monitor (htop)", description: "实时系统监控", command: "htop", icon: "ChartBarSquare", group: "Tools" },
 ];
 
 function loadTemplates(): SessionTemplate[] {

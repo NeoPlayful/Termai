@@ -26,7 +26,7 @@ const zhCN: MessageDict = {
   "settings.font_size": "字体大小",
   "settings.font_reset": "重置",
   // Modal - Create
-  "modal.create": "新建会话",
+  "modal.create": "创建会话",
   "modal.custom": "自定义",
   "modal.back": "← 模板列表",
   "modal.cancel": "取消",
@@ -65,6 +65,7 @@ const en: MessageDict = {
   "settings.system": "Follow System",
   "settings.font_size": "Font Size",
   "settings.font_reset": "Reset",
+  "modal.create": "Create session",
   "modal.custom": "Custom",
   "modal.back": "← Templates",
   "modal.cancel": "Cancel",

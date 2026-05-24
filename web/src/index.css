@@ -85,13 +85,34 @@ html, body, #root {
 /* xterm.js scrollbar */
 .xterm-viewport {
   scrollbar-width: thin;
-  scrollbar-color: #3a3a3c transparent;
+  scrollbar-color: #636366 transparent;
 }
 .xterm-viewport::-webkit-scrollbar { width: 8px; }
 .xterm-viewport::-webkit-scrollbar-track { background: transparent; }
 .xterm-viewport::-webkit-scrollbar-thumb {
-  background: #3a3a3c; border-radius: 4px; min-height: 40px;
+  background: #636366; border-radius: 4px; min-height: 40px;
 }
 .xterm-viewport::-webkit-scrollbar-thumb:hover {
-  background: #48484a;
+  background: #78787a;
 }
+
+/* Mobile sidebar drawer */
+@media (max-width: 639px) {
+  .sidebar-desktop { display: none; }
+}
+
+/* Prevent body scroll on mobile when sidebar open */
+body.sidebar-open {
+  overflow: hidden;
+}
+
+/* Tab scroll container */
+.tab-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tab-scroll::-webkit-scrollbar { display: none; }
+
+/* Font size utility */
+.text-2xs { font-size: 0.65rem; line-height: 1rem; }
+.text-3xs { font-size: 0.6rem; line-height: 0.85rem; }

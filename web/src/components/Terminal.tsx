@@ -42,6 +42,8 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
   const [status, setStatus] = useState("connecting");
   const currentTheme = settingsStore((s) => s.theme);
   const currentFontSize = settingsStore((s) => s.fontSize);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+  const displayFontSize = isMobile ? Math.min(currentFontSize, 14) : currentFontSize;
 
   const onOutput = useCallback((data: string) => {
     xtermRef.current?.write(data);
@@ -72,7 +74,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     const term = new XTerm({
       cursorBlink: true,
       cursorStyle: "block",
-      fontSize: currentFontSize,
+      fontSize: displayFontSize,
       scrollback: 100000,
       fontFamily: "'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace",
       theme: {
@@ -160,9 +162,22 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
   useEffect(() => {
     const term = xtermRef.current;
     if (!term) return;
-    term.options.fontSize = currentFontSize;
+    term.options.fontSize = displayFontSize;
     fitAddonRef.current?.fit();
   }, [currentFontSize]);
+
+  // Mobile: handle virtual keyboard showing/hiding
+  useEffect(() => {
+    const vp = (window as unknown as { visualViewport?: { height: number } }).visualViewport;
+    if (!vp) return;
+    const handler = () => {
+      if (!containerRef.current) return;
+      const diff = window.innerHeight - vp.height;
+      containerRef.current.style.marginBottom = diff > 100 ? diff + "px" : "0";
+    };
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
 
   return (
     <div className="flex flex-col h-full">
