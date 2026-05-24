@@ -1,4 +1,4 @@
-# Termai Manager
+# Termai
 
 > 单端口、多会话、多标签、进程常驻的 Web 终端管理器
 
