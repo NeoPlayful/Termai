@@ -11,6 +11,7 @@ export default defineConfig({
       "/ws": {
         target: "ws://localhost:6688",
         ws: true,
+        changeOrigin: true,
       },
     },
   },

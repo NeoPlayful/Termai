@@ -209,6 +209,11 @@ class SessionManager {
     const session = this.sessions.get(id);
     if (!session) return;
 
+    // Auto-restart PTY if not running
+    if (!session.pty) {
+      this.startPty(id);
+    }
+
     session.clients.add(client);
     db.upsertSession({ ...session, clientCount: session.clients.size });
 
