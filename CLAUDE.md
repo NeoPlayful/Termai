@@ -38,22 +38,22 @@ Browser → HTTP/WS → Fastify Server :6688 → Session Manager → node-pty PT
 ```
 termai/
 ├── package.json              — Root workspace (concurrently runs both)
-├── server/
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── src/
-│       ├── index.ts              — Fastify entry, REST routes, server start
-│       ├── config.ts             — Config loading (port, auth, limits)
-│       ├── db.ts                 — SQLite schema + CRUD
-│       ├── session-manager.ts    — PTY lifecycle, scrollback, client tracking
-│       ├── terminal-ws.ts        — WebSocket ↔ PTY bridge
-│       └── types.ts              — Shared types (SessionMeta, WS messages)
-├── web/
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── vite.config.ts
-│   ├── index.html
-│   └── src/
+├── src/
+│   ├── server/               — Fastify backend
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   ├── config.json
+│   │   ├── index.ts              — Fastify entry, REST routes, server start
+│   │   ├── config.ts             — Config loading (port, auth, limits)
+│   │   ├── db.ts                 — SQLite schema + CRUD
+│   │   ├── session-manager.ts    — PTY lifecycle, scrollback, client tracking
+│   │   ├── terminal-ws.ts        — WebSocket ↔ PTY bridge
+│   │   └── types.ts              — Shared types (SessionMeta, WS messages)
+│   └── web/                  — React frontend
+│       ├── package.json
+│       ├── tsconfig.json
+│       ├── vite.config.ts
+│       ├── index.html
 │       ├── main.tsx              — React entry
 │       ├── App.tsx               — Layout: sidebar + tabs + terminal
 │       ├── index.css             — Tailwind import
@@ -68,22 +68,24 @@ termai/
 │           ├── Tabs.tsx          — Tab bar for open sessions
 │           └── Terminal.tsx      — xterm.js wrapper
 └── docs/
-    └── Termai 项目需求技术方案.md
+    ├── Termai 项目需求技术方案.md
+    ├── plan-phase1.md
+    └── plan-phase2.md
 ```
 
 ## Development Commands
 
 ```bash
 # Install all dependencies
-cd server && npm install
+cd src/server && npm install
 cd ../web && npm install
-cd ..
+cd ../..
 
 # Run both server + web in dev mode (Vite proxies API/WS to :6688)
 npm run dev
 
 # Or run individually:
-npm run dev:server   # tsx watch, port 3000
+npm run dev:server   # tsx watch, port 6688
 npm run dev:web      # Vite dev, port 5173
 
 # Build for production
@@ -93,11 +95,11 @@ npm start            # serves web/dist from Fastify
 
 ## Key Files to Know
 
-- `server/src/session-manager.ts` — Core business logic: PTY create/kill/restart, scrollback ring buffer, multi-client broadcast
-- `server/src/terminal-ws.ts` — WebSocket message routing (input → PTY, PTY output → broadcast)
-- `server/src/db.ts` — SQLite schema & prepared statements
-- `web/src/hooks/useWebSocket.ts` — WS lifecycle with 2s auto-reconnect
-- `web/src/components/Terminal.tsx` — xterm.js init, resize observer, Tokyo Night theme
+- `src/server/session-manager.ts` — Core business logic: PTY create/kill/restart, scrollback ring buffer, multi-client broadcast
+- `src/server/terminal-ws.ts` — WebSocket message routing (input → PTY, PTY output → broadcast)
+- `src/server/db.ts` — SQLite schema & prepared statements
+- `src/web/hooks/useWebSocket.ts` — WS lifecycle with 2s auto-reconnect
+- `src/web/components/Terminal.tsx` — xterm.js init, resize observer, Tokyo Night theme
 
 ## Session Data Model
 
