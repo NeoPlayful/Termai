@@ -1,5 +1,6 @@
 import { spawn, type IPty } from "node-pty";
 import { execSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { config } from "./config.js";
 import * as db from "./db.js";
 import type { SessionMeta, SessionConfig, SessionStatus } from "./types.js";
@@ -100,13 +101,19 @@ class SessionManager {
       ...session.env,
     };
 
+    // Ensure PATH is set for node-pty spawn (macOS launchd/IDE may have minimal PATH)
+    if (!env.PATH) {
+      env.PATH = "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:/opt/local/bin";
+    }
+
     let pty: IPty;
     let command = session.command;
     let args = session.args;
+    let resolvedPath: string | null = null;
 
     // Resolve command path for cross-platform compatibility:
     // - Windows: .cmd scripts need cmd.exe /c wrapper
-    // - Unix:    resolve via `which` so node-pty inherits full PATH
+    // - Unix:    resolve via `which` + known path fallback
     if (process.platform === "win32") {
       try {
         execSync(`where "${session.command}.cmd"`, { encoding: "utf8", stdio: "pipe" });
@@ -114,10 +121,28 @@ class SessionManager {
         args = ["/c", session.command, ...session.args];
       } catch { /* not a .cmd, proceed with normal spawn */ }
     } else {
+      // Try `which` first
       try {
-        const resolved = execSync(`which "${session.command}"`, { encoding: "utf8", stdio: "pipe" }).trim();
-        if (resolved) command = resolved;
-      } catch { /* which failed, proceed with original command */ }
+        resolvedPath = execSync(`which "${session.command}"`, { encoding: "utf8", stdio: "pipe" }).trim();
+      } catch { /* which failed */ }
+      // Fallback: common absolute paths for well-known commands
+      if (!resolvedPath) {
+        const knownPaths: Record<string, string[]> = {
+          bash: ["/bin/bash", "/usr/bin/bash", "/usr/local/bin/bash"],
+          zsh: ["/bin/zsh", "/usr/bin/zsh", "/usr/local/bin/zsh"],
+          sh: ["/bin/sh"],
+          fish: ["/usr/local/bin/fish", "/opt/homebrew/bin/fish"],
+          python: ["/usr/bin/python3", "/usr/local/bin/python3", "/opt/homebrew/bin/python3"],
+          node: ["/usr/local/bin/node", "/opt/homebrew/bin/node"],
+          claude: ["/usr/local/bin/claude", "/opt/homebrew/bin/claude"],
+          htop: ["/usr/bin/htop", "/usr/local/bin/htop", "/opt/homebrew/bin/htop"],
+        };
+        const candidates = knownPaths[session.command];
+        if (candidates) {
+          resolvedPath = candidates.find((p) => existsSync(p)) ?? null;
+        }
+      }
+      if (resolvedPath) command = resolvedPath;
     }
 
     try {
