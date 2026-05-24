@@ -38,22 +38,22 @@ Browser → HTTP/WS → Fastify Server :6688 → Session Manager → node-pty PT
 ```
 termai/
 ├── package.json              — Root workspace (concurrently runs both)
-├── src/
-│   ├── server/               — Fastify backend
-│   │   ├── package.json
-│   │   ├── tsconfig.json
-│   │   ├── config.json
-│   │   ├── index.ts              — Fastify entry, REST routes, server start
-│   │   ├── config.ts             — Config loading (port, auth, limits)
-│   │   ├── db.ts                 — SQLite schema + CRUD
-│   │   ├── session-manager.ts    — PTY lifecycle, scrollback, client tracking
-│   │   ├── terminal-ws.ts        — WebSocket ↔ PTY bridge
-│   │   └── types.ts              — Shared types (SessionMeta, WS messages)
-│   └── web/                  — React frontend
-│       ├── package.json
-│       ├── tsconfig.json
-│       ├── vite.config.ts
-│       ├── index.html
+├── server/
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── src/
+│       ├── index.ts              — Fastify entry, REST routes, server start
+│       ├── config.ts             — Config loading (port, auth, limits)
+│       ├── db.ts                 — SQLite schema + CRUD
+│       ├── session-manager.ts    — PTY lifecycle, scrollback, client tracking
+│       ├── terminal-ws.ts        — WebSocket ↔ PTY bridge
+│       └── types.ts              — Shared types (SessionMeta, WS messages)
+├── web/
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   ├── index.html
+│   └── src/
 │       ├── main.tsx              — React entry
 │       ├── App.tsx               — Layout: sidebar + tabs + terminal
 │       ├── index.css             — Tailwind import
