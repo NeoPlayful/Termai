@@ -104,16 +104,20 @@ class SessionManager {
     let command = session.command;
     let args = session.args;
 
-    // On Windows, resolve .cmd scripts (e.g. claude → claude.cmd)
-    // node-pty can't launch .cmd files directly, so wrap with cmd.exe /c
+    // Resolve command path for cross-platform compatibility:
+    // - Windows: .cmd scripts need cmd.exe /c wrapper
+    // - Unix:    resolve via `which` so node-pty inherits full PATH
     if (process.platform === "win32") {
       try {
-        // Check if command exists as a .cmd file via `where`
-        execSync(`where "${command}.cmd"`, { encoding: "utf8", stdio: "pipe" });
-        // If we get here, .cmd exists — wrap with cmd.exe /c
+        execSync(`where "${session.command}.cmd"`, { encoding: "utf8", stdio: "pipe" });
         command = "cmd.exe";
         args = ["/c", session.command, ...session.args];
-      } catch { /* command is not a .cmd, proceed with normal spawn */ }
+      } catch { /* not a .cmd, proceed with normal spawn */ }
+    } else {
+      try {
+        const resolved = execSync(`which "${session.command}"`, { encoding: "utf8", stdio: "pipe" }).trim();
+        if (resolved) command = resolved;
+      } catch { /* which failed, proceed with original command */ }
     }
 
     try {
