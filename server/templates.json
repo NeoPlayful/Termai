@@ -13,7 +13,6 @@
     "name": "Command Prompt",
     "description": "Windows 命令提示符",
     "command": "cmd.exe",
-    "cwd": "%USERPROFILE%",
     "icon": "CommandLine",
     "platform": ["win32"],
     "group": "Shells"
