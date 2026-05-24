@@ -71,7 +71,7 @@ interface SettingsState {
 | key | 类型 | 默认值 | 说明 |
 |-----|------|--------|------|
 | `termai-language` | `zh-CN \| en` | `zh-CN` | 语言偏好 |
-| `termai-theme` | `dark \| light \| system` | `system` | 主题偏好 |
+| `termai-theme` | `dark \| light \| system` | `dark` | 主题偏好，默认深色 |
 
 ---
 
@@ -221,24 +221,49 @@ term.options.theme = newTheme;
 
 #### SettingsPanel.tsx
 
+依赖新增：`@heroicons/react`（Heroicons 官方 React 组件库）
+
+```
+npm install @heroicons/react
+```
+
 布局：
 
 ```
-┌──────────────────────┐
-│ ⚙️ System Settings    │
-│                      │
-│ Language             │
-│ [中文] [English]     │
-│                      │
-│ Theme                │
-│ [🌙 Dark] [☀️ Light] │
-│ [🖥️  Follow System]  │
-└──────────────────────┘
+┌──────────────────────────┐
+│ ⚙️ System Settings        │
+│                          │
+│ Language                 │
+│ [中文] [English]         │
+│                          │
+│ Theme                    │
+│ [🌙 Dark] [☀️ Light]      │
+│ [🖥️  Follow System]      │
+└──────────────────────────┘
 ```
 
-- 弹窗形式，与创建会话弹窗风格一致
-- 切换即时生效
-- 点击外部关闭
+图标对应表（emoji → Heroicons）：
+
+| 位置 | Emoji | Heroicons 组件 |
+|------|-------|----------------|
+| 侧栏设置按钮 | ⚙️ | `Cog6ToothIcon` |
+| 设置面板标题 | ⚙️ | `Cog6ToothIcon` |
+| 深色模式 | 🌙 | `MoonIcon` |
+| 浅色模式 | ☀️ | `SunIcon` |
+| 跟随系统 | 🖥️ | `ComputerDesktopIcon` |
+| Custom 按钮 | ✏️ | `PencilIcon` |
+
+使用方式：
+
+```tsx
+import { Cog6ToothIcon, MoonIcon, SunIcon, ComputerDesktopIcon } from "@heroicons/react/24/outline";
+
+// 示例
+<Cog6ToothIcon className="w-4 h-4" />
+<MoonIcon className="w-4 h-4" />
+```
+
+设置按钮 24x24 outline 风格，与深色/浅色主题联动。
 
 #### Sidebar.tsx 变更
 

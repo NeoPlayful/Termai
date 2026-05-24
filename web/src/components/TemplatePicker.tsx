@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { PencilIcon } from "@heroicons/react/24/outline";
 import { useTemplateStore } from "../stores/templateStore.ts";
 import { useT } from "../stores/settingsStore.ts";
 
@@ -30,23 +31,22 @@ export function TemplatePicker({ onSelect, onCustom }: TemplatePickerProps) {
     fetchTemplates();
   }, [fetchTemplates]);
 
-  // Group templates
   const groups = new Map<string, SessionTemplate[]>();
-  for (const t of templates) {
-    const g = t.group ?? "Other";
+  for (const tpl of templates) {
+    const g = tpl.group ?? "Other";
     if (!groups.has(g)) groups.set(g, []);
-    groups.get(g)!.push(t);
+    groups.get(g)!.push(tpl);
   }
   const sortedGroups = [...groups.entries()].sort(
     (a, b) => GROUP_ORDER.indexOf(a[0]) - GROUP_ORDER.indexOf(b[0])
   );
 
   return (
-    <div className="bg-gray-800 dark:bg-gray-800 bg-white rounded-lg p-4 w-96 border border-gray-700 dark:border-gray-700 border-gray-200">
-      <h2 className="text-sm font-semibold text-gray-100 dark:text-gray-100 text-gray-800 mb-3">{t("modal.create")}</h2>
+    <div className="bg-gray-800 rounded-lg p-4 w-96 border border-gray-700">
+      <h2 className="text-sm font-semibold text-gray-100 mb-3">{t("modal.create")}</h2>
 
       {loading && (
-        <div className="text-xs text-gray-400 dark:text-gray-400 text-gray-500 text-center py-8">{t("terminal.connecting")}</div>
+        <div className="text-xs text-gray-400 text-center py-8">{t("terminal.connecting")}</div>
       )}
 
       {!loading && templates.length === 0 && (
@@ -57,7 +57,7 @@ export function TemplatePicker({ onSelect, onCustom }: TemplatePickerProps) {
 
       {!loading && sortedGroups.map(([group, items]) => (
         <div key={group} className="mb-3">
-          <div className="text-2xs text-gray-500 dark:text-gray-500 text-gray-400 uppercase tracking-wider mb-1 px-1">
+          <div className="text-2xs text-gray-500 uppercase tracking-wider mb-1 px-1">
             {t("group." + group)}
           </div>
           <div className="grid grid-cols-1 gap-1">
@@ -66,7 +66,7 @@ export function TemplatePicker({ onSelect, onCustom }: TemplatePickerProps) {
                 key={tpl.id}
                 onClick={() => onSelect(tpl)}
                 className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-left
-                  text-gray-300 dark:text-gray-300 text-gray-600 hover:bg-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100 hover:text-white dark:hover:text-white hover:text-gray-900 transition-colors"
+                  text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                 title={tpl.description}
               >
                 <span className="text-base">{tpl.icon ?? "▹"}</span>
@@ -77,13 +77,13 @@ export function TemplatePicker({ onSelect, onCustom }: TemplatePickerProps) {
         </div>
       ))}
 
-      <div className="border-t border-gray-700 dark:border-gray-700 border-gray-200 pt-2 mt-1">
+      <div className="border-t border-gray-700 pt-2 mt-1">
         <button
           onClick={onCustom}
-          className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-gray-400 dark:text-gray-400 text-gray-500
-            hover:bg-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100 hover:text-white dark:hover:text-white hover:text-gray-900 transition-colors w-full"
+          className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-gray-400
+            hover:bg-gray-700 hover:text-white transition-colors w-full"
         >
-          <span className="text-base">✏️</span>
+          <PencilIcon className="w-4 h-4" />
           <span>{t("modal.custom")}</span>
         </button>
       </div>

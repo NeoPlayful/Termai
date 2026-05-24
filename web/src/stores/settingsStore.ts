@@ -19,7 +19,7 @@ function getInitialLanguage(): Language {
 function getInitialTheme(): Theme {
   const stored = localStorage.getItem("termai-theme");
   if (stored === "dark" || stored === "light" || stored === "system") return stored;
-  return "system";
+  return "dark";
 }
 
 function getIsDark(theme: Theme): boolean {

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { useSessionStore } from "../stores/sessionStore.ts";
 import { useTerminalStore } from "../stores/terminalStore.ts";
 import { TemplatePicker } from "./TemplatePicker.tsx";
@@ -139,6 +140,18 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
             </button>
           </div>
         ))}
+      </div>
+
+      {/* Settings bar */}
+      <div className="border-t border-gray-700 p-2 flex items-center justify-between shrink-0">
+        <button
+          onClick={() => setShowSettings(true)}
+          className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
+          title={t("sidebar.settings")}
+        >
+          <Cog6ToothIcon className="w-4 h-4" />
+        </button>
+        <span className="text-2xs text-gray-600">v0.1.3</span>
       </div>
 
       {/* Create Modal */}
