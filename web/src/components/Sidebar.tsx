@@ -6,6 +6,7 @@ import { TemplatePicker } from "./TemplatePicker.tsx";
 import { SettingsPanel } from "./SettingsPanel.tsx";
 import { useT } from "../stores/settingsStore.ts";
 import { useUIActions } from "../stores/uiActionsStore.ts";
+import { version } from "../../package.json";
 
 interface SessionTemplate {
   id: string; name: string; description?: string;
@@ -61,9 +62,12 @@ export function Sidebar({ onSelectSession, activeSessionId, isOpen, isDrawer, on
   const asideStyle: React.CSSProperties = isDrawer
     ? {
         position: "fixed" as const,
-        top: 0, left: 0, bottom: 0, width: 280,
+        top: 64, left: 0, bottom: 0, width: "60%", maxWidth: 280,
         backgroundColor: "var(--bg-sidebar)",
         borderRight: "1px solid var(--border-default)",
+        display: "flex",
+        flexDirection: "column" as const,
+        height: "calc(100% - 64px)",
         transform: isOpen ? "translateX(0)" : "translateX(-100%)",
         transition: "transform 0.2s ease",
         zIndex: 20,
@@ -79,8 +83,9 @@ export function Sidebar({ onSelectSession, activeSessionId, isOpen, isDrawer, on
 
   return (<>
     <aside style={asideStyle}>
+      {!isDrawer && (
       <div className="p-3 flex items-center justify-between shrink-0" style={{borderBottom: '1px solid var(--border-default)'}}>
-        <h1 className="text-sm font-semibold" style={{color: 'var(--text-primary)'}}>Termai</h1>
+        <div className="flex items-center gap-2"><img src="/icons/logo.png" width="20" height="20" alt="Termai" style={{borderRadius: 6}} /><h1 className="text-sm font-semibold" style={{color: 'var(--text-primary)'}}>Termai</h1></div>
         <button onClick={() => setShowCreate(true)}
           className="text-xs px-2 py-1 rounded text-white transition-colors shrink-0"
           style={{backgroundColor: 'var(--brand-blue)'}}
@@ -88,11 +93,12 @@ export function Sidebar({ onSelectSession, activeSessionId, isOpen, isDrawer, on
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--brand-blue)'}
         >+ New</button>
       </div>
+      )}
 
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
         {loading && <div className="text-xs text-center py-4" style={{color: 'var(--text-muted)'}}>Loading...</div>}
         {!loading && sessions.length === 0 && (
-          <div className="text-xs text-center py-4" style={{color: 'var(--text-muted)'}}>No sessions. Create one to get started.</div>
+          <div className="text-xs text-center py-4" style={{color: 'var(--text-muted)'}}>{t("sidebar.no_sessions")}</div>
         )}
         {sessions.map((s) => (
           <div key={s.id} onClick={() => { onSelectSession(s.id, s.name); if (isDrawer) onClose(); }}
@@ -120,7 +126,7 @@ export function Sidebar({ onSelectSession, activeSessionId, isOpen, isDrawer, on
           style={{color: 'var(--text-muted)'}} title={t("sidebar.settings")}>
           <Cog6ToothIcon className="w-5 h-5" />
         </button>
-        <span className="text-3xs" style={{color: 'var(--text-muted)'}}>v0.1.4</span>
+        <span className="text-3xs" style={{color: 'var(--text-muted)'}}>v{version}</span>
       </div>
 
       </aside>

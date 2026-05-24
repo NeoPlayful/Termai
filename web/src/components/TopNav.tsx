@@ -34,19 +34,8 @@ export function TopNav({ onToggleSidebar, onNewSession, onSearch }: TopNavProps)
 
         {/* Logo + Brand */}
         <div className="flex items-center gap-3">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="28" height="28" rx="8" fill="url(#termai-gradient)" />
-            <path d="M8 14L12 10L16 14" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-            <path d="M16 14L20 18" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-            <defs>
-              <linearGradient id="termai-gradient" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#3B82F6" />
-                <stop offset="1" stopColor="#2563EB" />
-              </linearGradient>
-            </defs>
-          </svg>
+          <img src="/icons/logo.png" width="28" height="28" alt="Termai" style={{borderRadius: 8}} />
           <span
-            className="hidden sm:inline"
             style={{
               fontFamily: "Inter, system-ui, sans-serif",
               fontWeight: 600,

@@ -36,7 +36,7 @@ const zhCN: MessageDict = {
   "modal.placeholder_cmd": "命令（如 cmd.exe、powershell、bash）",
   "modal.placeholder_cwd": "工作目录（可选）",
   // Modal - Template groups
-  "group.Shells": "Shells",
+  "group.Shells": "命令行",
   "group.AI Tools": "AI 工具",
   "group.Connections": "连接",
   "group.Tools": "工具",

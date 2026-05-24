@@ -1,7 +1,7 @@
 # Termai 项目开发计划 — 第四阶段：移动端客户端
 
 > 文档状态：规划中
-> 对应版本：v0.1.4
+> 对应版本：v0.1.5
 > 前置条件：第三阶段已完成（系统设置、i18n、主题切换、字体大小）
 
 ---
@@ -313,29 +313,29 @@ cd web && npm install -D vite-plugin-pwa
 | # | 交付物 | 状态 |
 |---|--------|------|
 | 1 | 第四阶段开发计划（本文档） | ✅ |
-| 2 | `web/public/manifest.json` + icons | ⬜ |
-| 3 | `vite-plugin-pwa` 集成 | ⬜ |
-| 4 | `web/src/hooks/useResponsive.ts` — 响应式断点 | ⬜ |
-| 5 | `web/src/hooks/useSwipe.ts` — 触控滑动 | ⬜ |
-| 6 | `web/src/components/MobileNav.tsx` — 底部导航 | ⬜ |
-| 7 | Sidebar.tsx 改造 — 抽屉模式 | ⬜ |
-| 8 | Terminal 触屏适配 — 键盘处理 + 缩放 | ⬜ |
-| 9 | App.tsx 改造 — 响应式布局切换 | ⬜ |
-| 10 | index.css — 移动端样式 | ⬜ |
+| 2 | `web/public/manifest.json` + icons | ✅ |
+| 3 | `vite-plugin-pwa` 集成 | ✅ |
+| 4 | `web/src/hooks/useResponsive.ts` — 响应式断点 | ✅ |
+| 5 | `web/src/hooks/useSwipe.ts` — 触控滑动 | ✅ |
+| 6 | `web/src/components/MobileNav.tsx` — 底部导航 | ✅ |
+| 7 | Sidebar.tsx 改造 — 抽屉模式 | ✅ |
+| 8 | Terminal 触屏适配 — 键盘处理 + 缩放 | ✅ |
+| 9 | App.tsx 改造 — 响应式布局切换 | ✅ |
+| 10 | index.css — 移动端样式 | ✅ |
 
 **功能验证清单：**
 
-- [ ] 手机浏览器访问显示安装 PWA 提示
-- [ ] 安装后全屏启动，无浏览器 chrome
-- [ ] 手机模式下侧栏隐藏，汉堡按钮可打开抽屉
-- [ ] 点击抽屉外遮罩关闭侧栏
+- [x] 手机浏览器访问显示安装 PWA 提示
+- [x] 安装后全屏启动，无浏览器 chrome
+- [x] 手机模式下侧栏隐藏，汉堡按钮可打开抽屉
+- [x] 点击抽屉外遮罩关闭侧栏
+- [x] 桌面端布局完全不变
+- [x] 平板端侧栏可折叠
+- [x] 点击终端弹出虚拟键盘，输入正常
+- [x] 虚拟键盘不遮挡终端输入
 - [ ] 底部导航栏 4 个按钮功能正常
-- [ ] 点击终端弹出虚拟键盘，输入正常
 - [ ] 双指缩放终端字体
 - [ ] 滑动切换标签
-- [ ] 虚拟键盘不遮挡终端输入
-- [ ] 桌面端布局完全不变
-- [ ] 平板端侧栏可折叠
 - [ ] 断网时显示友好提示
 
 ---
