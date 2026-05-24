@@ -3,7 +3,5 @@
   "host": "0.0.0.0",
   "authToken": null,
   "maxSessions": 10,
-  "dbPath": "C:\\Users\\admin\\source\\projects\\termai\\server\\data\\sessions.db",
-  "scrollbackSize": 2000,
-  "webDir": "C:\\Users\\admin\\source\\projects\\termai\\web\\dist"
+  "scrollbackSize": 100000
 }
