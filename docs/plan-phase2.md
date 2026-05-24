@@ -417,25 +417,25 @@ User                React                    Fastify               SQLite / FS
 | # | 交付物 | 状态 |
 |---|--------|------|
 | 1 | 第二阶段开发计划（本文档） | ✅ |
-| 2 | `server/src/templates.ts` — 模板加载 + 平台过滤 + API 路由 | ⬜ |
-| 3 | `server/templates.json` — 默认模板定义 | ⬜ |
-| 4 | `web/src/stores/templateStore.ts` — 模板列表状态（含 fetchTemplates） | ⬜ |
-| 5 | `web/src/components/TemplatePicker.tsx` — 模板选择面板 | ⬜ |
-| 6 | `web/src/components/StatusBar.tsx` — 终端状态栏 | ⬜ |
-| 7 | Sidebar.tsx 改造 — 集成模板选择器 | ⬜ |
-| 8 | config.json 新增 templatesPath 字段 | ⬜ |
+| 2 | `server/src/templates.ts` — 模板加载 + 平台过滤 + API 路由 | ✅ |
+| 3 | `server/templates.json` — 默认模板定义 | ✅ |
+| 4 | `web/src/stores/templateStore.ts` — 模板列表状态（含 fetchTemplates） | ✅ |
+| 5 | `web/src/components/TemplatePicker.tsx` — 模板选择面板 | ✅ |
+| 6 | `web/src/components/StatusBar.tsx` — 终端状态栏 | ✅ |
+| 7 | Sidebar.tsx 改造 — 集成模板选择器 | ✅ |
+| 8 | config.json 新增 templatesPath 字段 | ✅ |
 
 **功能验证清单：**
 
-- [ ] `GET /api/templates` 返回平台过滤后的模板列表
-- [ ] templates.json 不存在时自动创建默认模板
-- [ ] templates.json 格式错误时回退内置模板
-- [ ] 点击模板一键创建 session（无表单）
-- [ ] 平台过滤正确（Windows 上不显示 claude 模板）
-- [ ] 模板分组展示（Shells / AI Tools / Connections）
-- [ ] Custom 入口进入手动填写表单
-- [ ] 终端底部显示状态栏（PID / CWD / uptime）
-- [ ] 编辑 templates.json + 重启后新模板生效
+- [x] `GET /api/templates` 返回平台过滤后的模板列表
+- [x] templates.json 不存在时自动创建默认模板
+- [x] templates.json 格式错误时回退内置模板
+- [x] 点击模板一键创建 session（无表单）
+- [x] 平台过滤正确（Windows 上不显示 claude 模板）
+- [x] 模板分组展示（Shells / AI Tools / Connections）
+- [x] Custom 入口进入手动填写表单
+- [x] 终端底部显示状态栏（PID / CWD / uptime）
+- [x] 编辑 templates.json + 重启后新模板生效
 
 ---
 
