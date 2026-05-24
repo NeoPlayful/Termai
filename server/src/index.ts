@@ -49,7 +49,7 @@ fastify.post<{ Body: CreateSessionRequest }>(
         name,
         command,
         args: args ?? [],
-        cwd: cwd ?? (process.env.HOME || "/root"),
+        cwd: cwd ?? (process.env.HOME || process.env.USERPROFILE || "/root"),
         env: env ?? {},
       });
       const meta = sessionManager.list().find((s) => s.id === id)!;

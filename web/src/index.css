@@ -7,26 +7,91 @@ html, body, #root {
   overflow: hidden;
 }
 
-/* xterm.js scrollbar - dark theme */
+/* ── Dark theme (default) ── */
+:root {
+  /* Tailwind gray palette - high contrast */
+  --color-gray-950: #000000;
+  --color-gray-900: #000000;
+  --color-gray-800: #1c1c1e;
+  --color-gray-700: #2c2c2e;
+  --color-gray-600: #3a3a3c;
+  --color-gray-500: #98989d;
+  --color-gray-400: #98989d;
+  --color-gray-300: #aeaeb2;
+  --color-gray-200: #c7c7cc;
+  --color-gray-100: #f5f5f7;
+  --color-gray-50:  #ffffff;
+
+  /* Page chrome */
+  --bg-page:       #000000;
+  --bg-sidebar:    #1c1c1e;
+  --bg-terminal:   #1c1c1e;
+  --bg-tab-bar:    #1c1c1e;
+  --bg-tab-active: #2c2c2e;
+  --bg-surface:    #2c2c2e;
+  --bg-surface-hover: #3a3a3c;
+  --bg-session-hover: #2c2c2e;
+  --bg-session-active: #2c2c2e;
+
+  --border-default: #374151;
+
+  --text-primary:   #f5f5f7;
+  --text-secondary: #aeaeb2;
+  --text-muted:     #98989d;
+
+  --brand-blue:       #3b82f6;
+  --brand-blue-hover: #60a5fa;
+  --brand-blue-bg:    #1e3a5f;
+
+  --status-green: #22c55e;
+}
+
+/* ── Light theme ── */
+.light {
+  --color-gray-50:  #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  --bg-page:       #f7f8fa;
+  --bg-sidebar:    #ffffff;
+  --bg-terminal:   #ffffff;
+  --bg-tab-bar:    #fcfcfd;
+  --bg-tab-active: #ffffff;
+  --bg-surface:    #ffffff;
+  --bg-surface-hover: #f3f4f6;
+  --bg-session-hover: #f3f4f6;
+  --bg-session-active: #eff6ff;
+
+  --border-default: #e5e7eb;
+
+  --text-primary:   #111827;
+  --text-secondary: #6b7280;
+  --text-muted:     #9ca3af;
+
+  --brand-blue:       #2563eb;
+  --brand-blue-hover: #3b82f6;
+  --brand-blue-bg:    #eff6ff;
+
+  --status-green: #22c55e;
+}
+
+/* xterm.js scrollbar */
 .xterm-viewport {
   scrollbar-width: thin;
-  scrollbar-color: #33467c transparent;
+  scrollbar-color: #3a3a3c transparent;
 }
-
-.xterm-viewport::-webkit-scrollbar {
-  width: 8px;
-}
-
-.xterm-viewport::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+.xterm-viewport::-webkit-scrollbar { width: 8px; }
+.xterm-viewport::-webkit-scrollbar-track { background: transparent; }
 .xterm-viewport::-webkit-scrollbar-thumb {
-  background: #33467c;
-  border-radius: 4px;
-  min-height: 40px;
+  background: #3a3a3c; border-radius: 4px; min-height: 40px;
 }
-
 .xterm-viewport::-webkit-scrollbar-thumb:hover {
-  background: #4a5b8f;
+  background: #48484a;
 }

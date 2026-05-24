@@ -461,22 +461,26 @@ scrollback buffer（重连有历史）
 
 ------
 
-## 第三阶段：界面与体验
+## 第三阶段：系统设置
 
-多语言与主题系统：
+UI 系统设置面板，整合所有用户偏好：
 
 ```
-i18n 国际化
+设置面板入口
+  ├── 侧栏底部齿轮图标 ⚙️
+
+语言设置 (i18n)
   ├── 中文 / English 切换
-  ├── 前端 UI 标签翻译
+  ├── 前端 UI 全量翻译
   ├── 服务端错误消息翻译
   └── 语言偏好持久化（localStorage）
 
-深色 / 浅色模式
+主题设置
+  ├── 深色模式 / 浅色模式
   ├── Tailwind dark mode（class 策略）
   ├── xterm.js 主题切换（Tokyo Night / GitHub Light）
   ├── 跟随系统偏好（prefers-color-scheme）
-  └── 手动切换 + 持久化
+  └── 主题偏好持久化（localStorage）
 ```
 
 ## 第四阶段：权限和安全

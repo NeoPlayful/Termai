@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { useSessionStore } from "../stores/sessionStore.ts";
 import { useTerminalStore } from "../stores/terminalStore.ts";
 import { TemplatePicker } from "./TemplatePicker.tsx";
+import { SettingsPanel } from "./SettingsPanel.tsx";
+import { useT } from "../stores/settingsStore.ts";
 
 interface SessionTemplate {
   id: string;
@@ -25,8 +28,10 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
   const { sessions, loading, createSession, deleteSession } = useSessionStore();
   const openTab = useTerminalStore((s) => s.openTab);
   const [showCreate, setShowCreate] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [mode, setMode] = useState<"picker" | "form">("picker");
   const [form, setForm] = useState({ id: "", name: "", command: "", cwd: "" });
+  const t = useT();
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,13 +85,16 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
   };
 
   return (
-    <aside className="w-64 bg-gray-800 flex flex-col h-full border-r border-gray-700">
+    <aside className="w-64 flex flex-col h-full" style={{backgroundColor: 'var(--bg-sidebar)', borderRight: '1px solid var(--border-default)'}}>
       {/* Header */}
-      <div className="p-3 border-b border-gray-700 flex items-center justify-between">
-        <h1 className="text-sm font-semibold text-gray-200">Termai</h1>
+      <div className="p-3 flex items-center justify-between" style={{borderBottom: '1px solid var(--border-default)'}}>
+        <h1 className="text-sm font-semibold" style={{color: 'var(--text-primary)'}}>Termai</h1>
         <button
           onClick={openCreate}
-          className="text-xs bg-blue-600 hover:bg-blue-500 px-2 py-1 rounded"
+          className="text-xs px-2 py-1 rounded text-white transition-colors"
+          style={{backgroundColor: 'var(--brand-blue)'}}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--brand-blue-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--brand-blue)'}
         >
           + New
         </button>
@@ -106,35 +114,47 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
           <div
             key={s.id}
             onClick={() => onSelectSession(s.id, s.name)}
+            style={{
+              backgroundColor: activeSessionId === s.id ? 'var(--bg-session-active)' : undefined,
+            }}
             className={`
               flex items-center justify-between px-2 py-1.5 rounded cursor-pointer text-sm
-              ${
-                activeSessionId === s.id
-                  ? "bg-blue-700 text-white"
-                  : "text-gray-300 hover:bg-gray-700"
-              }
+              ${activeSessionId === s.id ? 'text-gray-900' : 'hover:bg-[var(--bg-session-hover)]'}
             `}
           >
             <div className="flex items-center gap-2 min-w-0">
               <span
-                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                  s.status === "running" ? "bg-green-400" : "bg-gray-500"
-                }`}
+                className="w-1.5 h-1.5 rounded-full shrink-0"
+                style={{backgroundColor: s.status === 'running' ? 'var(--status-green)' : 'var(--text-muted)'}}
               />
-              <span className="truncate">{s.name}</span>
+              <span className="truncate" style={{color: 'var(--text-primary)'}}>{s.name}</span>
             </div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 deleteSession(s.id);
               }}
-              className="text-xs text-gray-400 hover:text-red-400 ml-2 shrink-0"
-              title="Delete"
+              className="text-xs ml-2 shrink-0 hover:text-red-400 transition-colors"
+              title={t("sidebar.delete")}
+              style={{color: 'var(--text-muted)'}}
             >
               ×
             </button>
           </div>
         ))}
+      </div>
+
+      {/* Settings bar */}
+      <div className="p-2 flex items-center justify-between shrink-0" style={{borderTop: '1px solid var(--border-default)'}}>
+        <button
+          onClick={() => setShowSettings(true)}
+          className="transition-colors hover:opacity-80"
+          style={{color: 'var(--text-muted)'}}
+          title={t("sidebar.settings")}
+        >
+          <Cog6ToothIcon className="w-5 h-5" />
+        </button>
+        <span className="text-3xs" style={{color: 'var(--text-muted)'}}>v0.1.3</span>
       </div>
 
       {/* Create Modal */}
@@ -149,14 +169,16 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
             ) : (
               <form
                 onSubmit={handleCreate}
-                className="bg-gray-800 rounded-lg p-4 w-80 border border-gray-700 space-y-3"
+                className="rounded-lg p-4 w-80 space-y-3 shadow-xl"
+                style={{backgroundColor: 'var(--bg-sidebar)', border: '1px solid var(--border-default)'}}
               >
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold">Custom Session</h2>
+                  <h2 className="text-sm font-semibold" style={{color: 'var(--text-primary)'}}>Custom Session</h2>
                   <button
                     type="button"
                     onClick={() => setMode("picker")}
-                    className="text-xs text-blue-400 hover:text-blue-300"
+                    className="text-xs transition-colors"
+                    style={{color: 'var(--brand-blue)'}}
                   >
                     ← Templates
                   </button>
@@ -165,39 +187,45 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
                   placeholder="Session ID (e.g. my-shell)"
                   value={form.id}
                   onChange={(e) => setForm({ ...form, id: e.target.value })}
-                  className="w-full bg-gray-700 rounded px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded px-2 py-1.5 text-sm outline-none focus:ring-1 transition-colors"
+                  style={{backgroundColor: 'var(--bg-surface-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-default)'}}
                   required
                 />
                 <input
                   placeholder="Display Name"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-gray-700 rounded px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded px-2 py-1.5 text-sm outline-none focus:ring-1 transition-colors"
+                  style={{backgroundColor: 'var(--bg-surface-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-default)'}}
                   required
                 />
                 <input
-                  placeholder="Command (e.g. cmd.exe, powershell.exe, bash)"
+                  placeholder="Command (e.g. cmd.exe, powershell, bash)"
                   value={form.command}
                   onChange={(e) => setForm({ ...form, command: e.target.value })}
-                  className="w-full bg-gray-700 rounded px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded px-2 py-1.5 text-sm outline-none focus:ring-1 transition-colors"
+                  style={{backgroundColor: 'var(--bg-surface-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-default)'}}
                 />
                 <input
                   placeholder="Working directory (optional)"
                   value={form.cwd}
                   onChange={(e) => setForm({ ...form, cwd: e.target.value })}
-                  className="w-full bg-gray-700 rounded px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded px-2 py-1.5 text-sm outline-none focus:ring-1 transition-colors"
+                  style={{backgroundColor: 'var(--bg-surface-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-default)'}}
                 />
                 <div className="flex justify-end gap-2 pt-1">
                   <button
                     type="button"
                     onClick={() => { setShowCreate(false); setMode("picker"); }}
-                    className="text-xs text-gray-400 hover:text-white px-2 py-1"
+                    className="text-xs px-2 py-1 transition-colors"
+                    style={{color: 'var(--text-muted)'}}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="text-xs bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded"
+                    className="text-xs px-3 py-1 rounded text-white transition-colors"
+                    style={{backgroundColor: 'var(--brand-blue)'}}
                   >
                     Create
                   </button>
@@ -207,6 +235,7 @@ export function Sidebar({ onSelectSession, activeSessionId }: SidebarProps) {
           </div>
         </div>
       )}
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
     </aside>
   );
 }

@@ -4,7 +4,31 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { useWebSocket } from "../hooks/useWebSocket.ts";
 import { StatusBar } from "./StatusBar.tsx";
+import { settingsStore } from "../stores/settingsStore.ts";
 import type { SessionMeta } from "../types.ts";
+import type { ITheme } from "@xterm/xterm";
+
+const DARK_THEME: ITheme = {
+  background: "#1c1c1e", foreground: "#f5f5f7", cursor: "#ffffff",
+  selectionBackground: "#007aff",
+  black: "#1c1c1e", red: "#ff453a", green: "#32d74b",
+  yellow: "#ffd60a", blue: "#007aff", magenta: "#bf5af2",
+  cyan: "#64d2ff", white: "#f5f5f7",
+  brightBlack: "#3a3a3c", brightRed: "#ff453a", brightGreen: "#30d158",
+  brightYellow: "#ffd60a", brightBlue: "#0a84ff", brightMagenta: "#bf5af2",
+  brightCyan: "#64d2ff", brightWhite: "#ffffff",
+};
+
+const LIGHT_THEME: ITheme = {
+  background: "#ffffff", foreground: "#111827", cursor: "#111827",
+  selectionBackground: "#dbeafe",
+  black: "#1f2937", red: "#dc2626", green: "#16a34a",
+  yellow: "#ca8a04", blue: "#2563eb", magenta: "#7c3aed",
+  cyan: "#0891b2", white: "#374151",
+  brightBlack: "#6b7280", brightRed: "#dc2626", brightGreen: "#16a34a",
+  brightYellow: "#ca8a04", brightBlue: "#2563eb", brightMagenta: "#7c3aed",
+  brightCyan: "#0891b2", brightWhite: "#111827",
+};
 
 interface TerminalViewProps {
   sessionId: string;
@@ -16,6 +40,8 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const [status, setStatus] = useState("connecting");
+  const currentTheme = settingsStore((s) => s.theme);
+  const currentFontSize = settingsStore((s) => s.fontSize);
 
   const onOutput = useCallback((data: string) => {
     xtermRef.current?.write(data);
@@ -46,9 +72,9 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     const term = new XTerm({
       cursorBlink: true,
       cursorStyle: "block",
-      fontSize: 13,
+      fontSize: currentFontSize,
       scrollback: 100000,
-      fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+      fontFamily: "'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace",
       theme: {
         background: "#1a1b26",
         foreground: "#a9b1d6",
@@ -122,22 +148,36 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     };
   }, [sessionId, send]);
 
+  // Sync xterm theme when settings theme changes
+  useEffect(() => {
+    const term = xtermRef.current;
+    if (!term) return;
+    term.options.theme = currentTheme === "dark" || currentTheme === "system"
+      ? DARK_THEME : LIGHT_THEME;
+  }, [currentTheme]);
+
+  // Sync xterm font size when settings change
+  useEffect(() => {
+    const term = xtermRef.current;
+    if (!term) return;
+    term.options.fontSize = currentFontSize;
+    fitAddonRef.current?.fit();
+  }, [currentFontSize]);
+
   return (
     <div className="flex flex-col h-full">
       {/* Status bar */}
-      <div className="h-6 bg-gray-800 border-b border-gray-700 flex items-center px-3 text-xs">
-        <span
-          className={`w-2 h-2 rounded-full mr-2 ${
-            status === "connected"
-              ? "bg-green-500"
-              : "bg-gray-600"
-          }`}
-        />
-        <span className="text-gray-400">{sessionId}</span>
-        <span className="ml-auto text-gray-500">{status === "connected" ? "connected" : status}</span>
+      <div className="h-6 flex items-center px-3 text-xs" style={{
+        backgroundColor: 'var(--bg-tab-bar)',
+        borderBottom: '1px solid var(--border-default)',
+        color: 'var(--text-muted)',
+      }}>
+        <span className="w-2 h-2 rounded-full mr-2" style={{backgroundColor: status === "connected" ? 'var(--status-green)' : 'var(--text-muted)'}} />
+        <span style={{color: 'var(--text-secondary)'}}>{sessionId}</span>
+        <span className="ml-auto" style={{color: 'var(--text-muted)'}}>{status === "connected" ? "connected" : status}</span>
       </div>
       {/* Terminal - bg matches xterm theme to prevent white flash on init */}
-      <div ref={containerRef} className="flex-1 bg-[#1a1b26]" />
+      <div ref={containerRef} className="flex-1" style={{backgroundColor: 'var(--bg-terminal)'}} />
       {session && <StatusBar session={session} />}
     </div>
   );

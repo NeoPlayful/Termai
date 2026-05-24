@@ -1,7 +1,7 @@
 # Termai 项目开发计划 — 第三阶段：系统设置
 
 > 文档状态：规划中
-> 对应版本：v0.3.0
+> 对应版本：v0.1.3
 > 前置条件：第二阶段已完成（会话模板、一键创建、状态栏）
 
 ---
@@ -40,8 +40,9 @@ Phase 3 架构：
 
 | 模块 | 新增/修改 | 说明 |
 |------|----------|------|
-| `web/src/stores/settingsStore.ts` | 新增 | 语言 + 主题状态管理，localStorage 持久化 |
-| `web/src/components/SettingsPanel.tsx` | 新增 | 设置面板（语言 + 主题选择器） |
+| `web/src/stores/settingsStore.ts` | 新增 | 语言 + 主题 + 字体大小状态管理，localStorage 持久化 |
+| `web/src/i18n/messages.ts` | 新增 | 翻译字典（zh-CN / en），含字体设置条目 |
+| `web/src/components/SettingsPanel.tsx` | 新增 | 设置面板（语言 + 主题 + 字体大小选择器） |
 | `web/src/components/Sidebar.tsx` | 修改 | 底部增加设置按钮 |
 | `web/src/App.tsx` | 修改 | 读取 settingsStore 应用主题 class |
 | `web/src/components/Terminal.tsx` | 修改 | 根据主题切换 xterm.js theme 配置 |
@@ -60,8 +61,10 @@ type Theme = "dark" | "light" | "system";
 interface SettingsState {
   language: Language;
   theme: Theme;
+  fontSize: number;
   setLanguage: (lang: Language) => void;
   setTheme: (theme: Theme) => void;
+  setFontSize: (size: number) => void;
 }
 ```
 
@@ -70,7 +73,8 @@ interface SettingsState {
 | key | 类型 | 默认值 | 说明 |
 |-----|------|--------|------|
 | `termai-language` | `zh-CN \| en` | `zh-CN` | 语言偏好 |
-| `termai-theme` | `dark \| light \| system` | `system` | 主题偏好 |
+| `termai-theme` | `dark \| light \| system` | `dark` | 主题偏好，默认深色 |
+| `termai-font-size` | `number` | `16` | 终端字体大小（px），范围 10-24 |
 
 ---
 
@@ -106,6 +110,28 @@ function applyTheme(theme: Theme) {
 - 初始化时从 localStorage 读取
 - 切换时写入 localStorage + 即时应用
 - 监听 `prefers-color-scheme` change 事件（system 模式时）
+
+**fontSize 实现：**
+
+```typescript
+function getInitialFontSize(): number {
+  const stored = localStorage.getItem("termai-font-size");
+  if (stored) {
+    const n = parseInt(stored, 10);
+    if (!isNaN(n) && n >= 10 && n <= 24) return n;
+  }
+  return 13;
+}
+
+export const settingsStore = create<SettingsState>((set) => ({
+  ...
+  fontSize: getInitialFontSize(),
+  setFontSize: (fontSize) => {
+    localStorage.setItem("termai-font-size", String(fontSize));
+    set({ fontSize });
+  },
+}));
+```
 
 #### i18n 实现方案
 
@@ -155,73 +181,211 @@ const messages: Record<Language, Record<string, string>> = {
 使用方式：
 
 ```typescript
-import { useSettingsStore } from "../stores/settingsStore.ts";
-const language = useSettingsStore((s) => s.language);
-const t = (key: string) => messages[language][key] ?? key;
+// settingsStore.ts 中暴露 useT hook
+export function useT() {
+  const language = useSettingsStore((s) => s.language);
+  return (key: string) => messages[language][key] ?? key;
+}
+
+// 组件中使用
+const t = useT();
 ```
+
+`useT()` 定义在 store 文件中，各组件直接导入，避免在每个组件内重复定义 `t` 函数。
 
 翻译涵盖范围：
 
-- 侧栏：标题、按钮、空状态提示
+- 侧栏：标题、按钮、空状态提示、设置入口
 - 标签栏：空状态提示
 - 终端：状态文字（connecting/connected/disconnected）
 - 模板选择面板：标题、分组名、Custom 按钮
 - 设置面板：标题、选项标签
 - 手动创建表单：标签、按钮
+- 状态栏：PID / CWD / uptime 标签
+- 模板分组名：Shells / AI Tools / Connections / Tools
 
 ### 4.2 主题实现
 
-#### Tailwind CSS dark mode
+#### 深色模式配色方案
 
-修改 `vite.config.ts` 或 `tailwind.config` 使用 class 策略：
+采用**高对比度深色风格**，取代原有的 Tokyo Night 配色：
 
-```typescript
-// Tailwind dark mode: class strategy
-// document.documentElement.classList.toggle("dark", isDark);
+| Token | Tokyo Night（旧） | 深色模式（新） | 用途 |
+|-------|------------------|-----------------|------|
+| 背景 | `#1a1b26` 蓝紫黑 | `#000000` 纯黑 | 页面背景（OLED 友好） |
+| 面板 | `#1f2937` 蓝灰 | `#1c1c1e` | 侧栏、卡片、弹窗 |
+| 面板二级 | `#374151` | `#2c2c2e` | 按钮、标签栏 |
+| 悬停 | `#4b5563` | `#3a3a3c` | 按钮/列表 hover |
+| 主文字 | `#a9b1d6` 紫灰 | `#f5f5f7` 白 | 标题、正文 |
+| 次要文字 | `#9ca3af` | `#98989d` | 辅助文本、状态栏 |
+| 蓝色高亮 | `#3b82f6` / `#7aa2f7` | `#007aff` | 按钮、选中态、链接 |
+| 分割线 | `#374151` | `#38383a` | 边框、分割线 |
+
+选择理由：终端管理工具需要长时间使用，高对比度（纯黑底 + 纯白字）比 Tokyo Night 的蓝紫灰更护眼、更清晰。
+
+#### Tailwind 4 颜色变量映射
+
+```css
+/* 深色主题色板 */
+:root {
+  --color-gray-900: #000000;    /* 背景 - 纯黑 */
+  --color-gray-800: #1c1c1e;    /* 面板 */
+  --color-gray-700: #2c2c2e;    /* 面板二级 */
+  --color-gray-600: #3a3a3c;    /* 悬停 */
+  --color-gray-500: #98989d;    /* 次要文字 */
+  --color-gray-400: #98989d;    /* 次要文字 / 图标 */
+  --color-gray-300: #aeaeb2;    /* 不可用文字 */
+  --color-gray-200: #c7c7cc;    /* 禁用态 */
+  --color-gray-100: #f5f5f7;    /* 主文字 - 纯白 */
+  --color-gray-50:  #ffffff;    /* 最亮 */
+  --color-blue-600: #007aff;    /* 蓝色高亮 */
+}
 ```
 
-所有深色样式已经通过 Tailwind 的 `dark:` 前缀生效：
-- `bg-gray-800` → 深色模式用，浅色模式加 `bg-white`
-- `text-gray-300` → 深色模式用，浅色模式加 `text-gray-700`
+#### 浅色模式色板
 
-需要为每个组件添加浅色模式变体。
+```css
+.light {
+  --color-gray-900: #ffffff;      /* 纯白背景 */
+  --color-gray-800: #f2f2f7;     /* 面板 */
+  --color-gray-700: #e5e5ea;     /* 面板二级 */
+  --color-gray-600: #d1d1d6;     /* 悬停 */
+  --color-gray-500: #8e8e93;     /* 次要文字 */
+  --color-gray-400: #aeaeb2;     /* 图标 */
+  --color-gray-300: #c7c7cc;     /* 禁用态 */
+  --color-gray-100: #1c1c1e;     /* 主文字 */
+  --color-gray-50:  #000000;     /* 最深 */
+}
+```
 
 #### xterm.js 主题联动
 
 Terminal.tsx 监听 settingsStore 的 theme 字段，重建 xterm 实例时切换 theme：
 
 ```typescript
-// 深色主题：Tokyo Night（现有）
-const DARK_THEME = { background: "#1a1b26", foreground: "#a9b1d6", ... };
+// 深色主题：高对比度风格
+const DARK_THEME = {
+  background: "#1c1c1e", foreground: "#f5f5f7", cursor: "#ffffff",
+  selectionBackground: "#007aff",
+  black: "#1c1c1e", red: "#ff453a", green: "#32d74b",
+  yellow: "#ffd60a", blue: "#007aff", magenta: "#bf5af2",
+  cyan: "#64d2ff", white: "#f5f5f7",
+  brightBlack: "#3a3a3c", brightRed: "#ff453a", brightGreen: "#30d158",
+  brightYellow: "#ffd60a", brightBlue: "#0a84ff", brightMagenta: "#bf5af2",
+  brightCyan: "#64d2ff", brightWhite: "#ffffff",
+};
 
-// 浅色主题：GitHub Light
-const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
+// 浅色主题：高对比度风格
+const LIGHT_THEME = {
+  background: "#ffffff", foreground: "#1c1c1e", cursor: "#007aff",
+  selectionBackground: "#bfdaff",
+  black: "#1c1c1e", red: "#ff3b30", green: "#34c759",
+  yellow: "#ff9500", blue: "#007aff", magenta: "#af52de",
+  cyan: "#34aadc", white: "#f5f5f7",
+  brightBlack: "#8e8e93", brightRed: "#ff3b30", brightGreen: "#28cd41",
+  brightYellow: "#ff9500", brightBlue: "#007aff", brightMagenta: "#af52de",
+  brightCyan: "#34aadc", brightWhite: "#ffffff",
+};
 ```
 
-当主题切换时，调用 `term.options.theme = newTheme`（无需重建 xterm 实例）。
+当主题切换时，直接赋值即可（无需重建 xterm 实例）：
+
+```typescript
+term.options.theme = newTheme;
+```
+
+#### 终端字体大小设置
+
+Terminal.tsx 监听 settingsStore 的 `fontSize` 字段，通过 `term.options.fontSize` 即时调整：
+
+```typescript
+// 在 xterm 初始化时读取 fontSize
+const fontSize = settingsStore.getState().fontSize;
+const term = new XTerm({ ..., fontSize });
+
+// 字体大小变化时，无需重建 xterm 实例
+useEffect(() => {
+  const term = xtermRef.current;
+  if (!term) return;
+  term.options.fontSize = fontSize;
+  // 触发 fitAddon.fit() 以重新计算终端尺寸
+  fitAddonRef.current?.fit();
+}, [fontSize]);
+```
+
+Terminal.tsx 变更：在组件内订阅 `settingsStore((s) => s.fontSize)`，值变化时更新 xterm 实例的 `fontSize` 选项。
 
 ### 4.3 UI 组件
 
 #### SettingsPanel.tsx
 
+依赖新增：`@heroicons/react`（Heroicons 官方 React 组件库）
+
+```
+npm install @heroicons/react
+```
+
 布局：
 
 ```
-┌──────────────────────┐
-│ ⚙️ System Settings    │
-│                      │
-│ Language             │
-│ [中文] [English]     │
-│                      │
-│ Theme                │
-│ [🌙 Dark] [☀️ Light] │
-│ [🖥️  Follow System]  │
-└──────────────────────┘
+┌──────────────────────────┐
+│ ⚙️ System Settings        │
+│                          │
+│ Language                 │
+│ [中文] [English]         │
+│                          │
+│ Theme                    │
+│ [🌙 Dark] [☀️ Light]      │
+│ [🖥️  Follow System]      │
+└──────────────────────────┘
 ```
 
-- 弹窗形式，与创建会话弹窗风格一致
-- 切换即时生效
-- 点击外部关闭
+图标对应表（emoji → Heroicons）：
+
+| 位置 | Emoji | Heroicons 组件 |
+|------|-------|----------------|
+| 侧栏设置按钮 | ⚙️ | `Cog6ToothIcon` |
+| 设置面板标题 | ⚙️ | `Cog6ToothIcon` |
+| 深色模式 | 🌙 | `MoonIcon` |
+| 浅色模式 | ☀️ | `SunIcon` |
+| 跟随系统 | 🖥️ | `ComputerDesktopIcon` |
+| Custom 按钮 | ✏️ | `PencilIcon` |
+
+使用方式：
+
+```tsx
+import { Cog6ToothIcon, MoonIcon, SunIcon, ComputerDesktopIcon } from "@heroicons/react/24/outline";
+```
+
+设置按钮 24x24 outline 风格，与深色/浅色主题联动。
+
+#### 设置面板布局（完整版）
+
+```
+┌──────────────────────────┐
+│ ⚙️ System Settings        │
+│                          │
+│ Language                 │
+│ [中文] [English]         │
+│                          │
+│ Theme                    │
+│ [🌙 Dark]                │
+│ [☀️ Light]               │
+│ [🖥️  Follow System]      │
+│                          │
+│ Font Size                │
+│ [−]  13px  [+]           │
+│   ──●───────  slider     │
+└──────────────────────────┘
+```
+
+字体大小控制：
+
+- 加减按钮：点击 ± 每次增减 1px
+- Slider：范围 10-24px
+- 默认值 16px
+- 重置按钮恢复 16px
+- 变更即时生效，无需刷新
 
 #### Sidebar.tsx 变更
 
@@ -232,7 +396,7 @@ const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
 │  会话列表...          │
 │                      │
 │──────────────────────│
-│ ⚙️            v0.3.0 │  ← 新增：底部设置栏
+│ ⚙️            v0.1.3 │  ← 新增：底部设置栏
 └──────────────────────┘
 ```
 
@@ -284,6 +448,30 @@ const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
 | modal.cancel | 取消 | Cancel |
 | modal.create_btn | 创建 | Create |
 
+### 模板分组
+
+| key | zh-CN | en |
+|-----|-------|----|
+| group.Shells | Shells | Shells |
+| group.AI Tools | AI 工具 | AI Tools |
+| group.Connections | 连接 | Connections |
+| group.Tools | 工具 | Tools |
+
+### 状态栏
+
+| key | zh-CN | en |
+|-----|-------|----|
+| statusbar.pid | PID | PID |
+| statusbar.cwd | CWD | CWD |
+| statusbar.uptime | 运行时间 | uptime |
+
+### 字体设置
+
+| key | zh-CN | en |
+|-----|-------|----|
+| settings.font_size | 字体大小 | Font Size |
+| settings.font_reset | 重置 | Reset |
+
 ---
 
 ## 六、边界情况与异常处理
@@ -309,13 +497,13 @@ const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
 | # | 交付物 | 状态 |
 |---|--------|------|
 | 1 | 第三阶段开发计划（本文档） | ✅ |
-| 2 | `web/src/stores/settingsStore.ts` — 设置状态管理 | ⬜ |
-| 3 | `web/src/i18n/messages.ts` — 翻译字典 | ⬜ |
-| 4 | `web/src/components/SettingsPanel.tsx` — 设置面板 | ⬜ |
-| 5 | Sidebar.tsx 改造 — 底部设置入口 | ⬜ |
-| 6 | App.tsx 改造 — 应用主题 class | ⬜ |
-| 7 | Terminal.tsx 改造 — 主题联动 | ⬜ |
-| 8 | index.css + 各组件 — 浅色模式样式 | ⬜ |
+| 2 | `web/src/stores/settingsStore.ts` — 设置状态管理 | ✅ |
+| 3 | `web/src/i18n/messages.ts` — 翻译字典 | ✅ |
+| 4 | `web/src/components/SettingsPanel.tsx` — 设置面板 | ✅ |
+| 5 | Sidebar.tsx 改造 — 底部设置入口 | ✅ |
+| 6 | App.tsx 改造 — 应用主题 class | ✅ |
+| 7 | Terminal.tsx 改造 — 主题联动 | ✅ |
+| 8 | index.css + 各组件 — 浅色模式样式 | ✅ |
 
 **功能验证清单：**
 
@@ -328,6 +516,9 @@ const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
 - [ ] 跟随系统模式随 OS 主题自动切换
 - [ ] 刷新页面后主题选择保持
 - [ ] 点击面板外部关闭设置面板
+- [ ] 字体大小加减按钮调整终端字号
+- [ ] 字体大小 slider 联动即时生效
+- [ ] 刷新页面后字体大小保持
 
 ---
 
@@ -337,6 +528,6 @@ const LIGHT_THEME = { background: "#ffffff", foreground: "#24292f", ... };
 |------|------|------|
 | 日文/韩文等多语言 | 当前只支持中文和英文，后续按需扩展 | 后续优化 |
 | 字体设置 | 系统设置扩展功能 | 后续优化 |
-| 终端字号设置 | 可考虑加入设置面板 | 后续优化 |
+| 终端字号设置 | 本次已纳入设置面板 | v0.1.3 |
 | 服务端 i18n（错误消息翻译） | 前端优先，服务端后续补充 | 安全阶段后 |
 | 其他系统设置（如 scrollback 行数） | 暂不纳入 | 后续优化 |

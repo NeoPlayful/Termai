@@ -24,7 +24,7 @@ export default function App() {
   }, [openTab]);
 
   return (
-    <div className="h-full flex bg-gray-900 text-white">
+    <div className="h-full flex" style={{backgroundColor: 'var(--bg-page)', color: 'var(--text-primary)'}}>
       {/* Sidebar */}
       <Sidebar
         onSelectSession={handleSelectSession}
@@ -38,7 +38,7 @@ export default function App() {
           {activeSessionId ? (
             <TerminalView key={activeSessionId} sessionId={activeSessionId} session={activeSession} />
           ) : (
-            <div className="h-full flex items-center justify-center text-gray-500 text-sm">
+            <div className="h-full flex items-center justify-center text-sm" style={{color: 'var(--text-muted)'}}>
               Select or create a session to begin
             </div>
           )}
