@@ -42,6 +42,15 @@ fastify.post<{ Body: CreateSessionRequest }>(
     if (!id || !name || !command) {
       return reply.status(400).send({ error: "id, name, and command are required" });
     }
+    if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+      return reply.status(400).send({ error: "id must be alphanumeric with _ or -" });
+    }
+    if (name.length > 100) {
+      return reply.status(400).send({ error: "name must be 100 characters or less" });
+    }
+    if (cwd && !cwd.startsWith("/") && !/^[A-Za-z]:\\/.test(cwd)) {
+      return reply.status(400).send({ error: "cwd must be an absolute path" });
+    }
 
     try {
       sessionManager.create({

@@ -1,5 +1,5 @@
 import { spawn, type IPty } from "node-pty";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { config } from "./config.js";
 import * as db from "./db.js";
@@ -95,10 +95,15 @@ class SessionManager {
     const session = this.sessions.get(id);
     if (!session) return;
 
-    const env = {
+    // Filter dangerous env vars from user-provided env
+    const BLOCKED_ENV = new Set(["LD_PRELOAD", "LD_LIBRARY_PATH", "DYLD_INSERT_LIBRARIES", "DYLD_LIBRARY_PATH"]);
+    const safeUserEnv = Object.fromEntries(
+      Object.entries(session.env).filter(([k]) => !BLOCKED_ENV.has(k))
+    );
+    const env: Record<string, string | undefined> = {
       ...process.env,
       TERM: "xterm-256color",
-      ...session.env,
+      ...safeUserEnv,
     };
 
     // Ensure PATH is set for node-pty spawn (macOS launchd/IDE may have minimal PATH)
@@ -116,14 +121,14 @@ class SessionManager {
     // - Unix:    resolve via `which` + known path fallback
     if (process.platform === "win32") {
       try {
-        execSync(`where "${session.command}.cmd"`, { encoding: "utf8", stdio: "pipe" });
+        execFileSync("where", [`${session.command}.cmd`], { encoding: "utf8", stdio: "pipe" });
         command = "cmd.exe";
         args = ["/c", session.command, ...session.args];
       } catch { /* not a .cmd, proceed with normal spawn */ }
     } else {
       // Try `which` first
       try {
-        resolvedPath = execSync(`which "${session.command}"`, { encoding: "utf8", stdio: "pipe" }).trim();
+        resolvedPath = execFileSync("which", [session.command], { encoding: "utf8", stdio: "pipe" }).trim();
       } catch { /* which failed */ }
       // Fallback: common absolute paths for well-known commands
       if (!resolvedPath) {
