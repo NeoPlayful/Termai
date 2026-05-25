@@ -22,9 +22,10 @@ const DARK_THEME: ITheme = {
 interface TerminalViewProps {
   sessionId: string;
   session: SessionMeta | null;
+  isActive?: boolean;
 }
 
-export const TerminalView = memo(function TerminalView({ sessionId, session }: TerminalViewProps) {
+export const TerminalView = memo(function TerminalView({ sessionId, session, isActive }: TerminalViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -121,9 +122,10 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         if (isTouchDevice) return;
-        fitAddon.fit();
         const dims = fitAddon.proposeDimensions();
-        if (dims) send({ type: "resize", cols: dims.cols, rows: dims.rows });
+        if (!dims || dims.cols <= 0 || dims.rows <= 0) return;
+        fitAddon.fit();
+        send({ type: "resize", cols: dims.cols, rows: dims.rows });
       }, 100);
     };
 
@@ -160,6 +162,17 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     if (!term) return;
     term.options.theme = DARK_THEME;
   }, [currentTheme]);
+
+  // Re-fit when tab becomes active (was hidden, now visible)
+  useEffect(() => {
+    if (!isActive) return;
+    const fit = fitAddonRef.current;
+    if (!fit) return;
+    const dims = fit.proposeDimensions();
+    if (!dims || dims.cols <= 0 || dims.rows <= 0) return;
+    fit.fit();
+    send({ type: "resize", cols: dims.cols, rows: dims.rows });
+  }, [isActive, send]);
 
   // Sync xterm font size when settings change
   useEffect(() => {
