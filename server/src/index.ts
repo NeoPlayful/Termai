@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import fastifyWs from "@fastify/websocket";
 import staticFiles from "@fastify/static";
 import { existsSync } from "node:fs";
+import { homedir } from "node:os";
 import { config } from "./config.js";
 import { sessionManager } from "./session-manager.js";
 import { registerTerminalWS } from "./terminal-ws.js";
@@ -48,8 +49,13 @@ fastify.post<{ Body: CreateSessionRequest }>(
     if (name.length > 100) {
       return reply.status(400).send({ error: "name must be 100 characters or less" });
     }
-    if (cwd && !cwd.startsWith("/") && !/^[A-Za-z]:\\/.test(cwd)) {
-      return reply.status(400).send({ error: "cwd must be an absolute path" });
+    if (cwd) {
+      const isUnix = cwd.startsWith("/");
+      const isWindowsDrive = /^[A-Za-z]:\\/.test(cwd);
+      const isUNC = /^\\\\[^\\]+\\[^\\]+/.test(cwd);
+      if (!isUnix && !isWindowsDrive && !isUNC) {
+        return reply.status(400).send({ error: "cwd must be an absolute path" });
+      }
     }
 
     try {
@@ -58,7 +64,7 @@ fastify.post<{ Body: CreateSessionRequest }>(
         name,
         command,
         args: args ?? [],
-        cwd: cwd ?? (process.env.HOME || process.env.USERPROFILE || "/root"),
+        cwd: cwd ?? homedir(),
         env: env ?? {},
       });
       const meta = sessionManager.list().find((s) => s.id === id)!;

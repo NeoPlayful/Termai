@@ -16,7 +16,7 @@ db.exec(`
     name TEXT NOT NULL,
     command TEXT NOT NULL,
     args TEXT NOT NULL DEFAULT '[]',
-    cwd TEXT NOT NULL DEFAULT '/root',
+    cwd TEXT NOT NULL DEFAULT '',
     env TEXT NOT NULL DEFAULT '{}',
     status TEXT NOT NULL DEFAULT 'stopped',
     pid INTEGER,

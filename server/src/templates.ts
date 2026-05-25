@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
+import { homedir } from "node:os";
 import { config } from "./config.js";
 
 export interface SessionTemplate {
@@ -64,7 +65,7 @@ export function applyTemplate(
     name: overrides.name ?? tpl.name,
     command: tpl.command,
     args: tpl.args ?? [],
-    cwd: overrides.cwd ?? tpl.cwd ?? (process.env.HOME || process.env.USERPROFILE || "/root"),
+    cwd: overrides.cwd ?? tpl.cwd ?? homedir(),
     env: tpl.env ?? {},
   };
 }

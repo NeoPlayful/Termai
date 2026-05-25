@@ -1,6 +1,7 @@
 import { spawn, type IPty } from "node-pty";
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { homedir } from "node:os";
 import { config } from "./config.js";
 import * as db from "./db.js";
 import type { SessionMeta, SessionConfig, SessionStatus } from "./types.js";
@@ -69,7 +70,7 @@ class SessionManager {
       name: cfg.name,
       command: cfg.command,
       args: cfg.args ?? [],
-      cwd: cfg.cwd ?? (process.env.HOME || process.env.USERPROFILE || "/root"),
+      cwd: cfg.cwd ?? homedir(),
       env: cfg.env ?? {},
       status: "stopped",
       pid: null,
@@ -108,13 +109,31 @@ class SessionManager {
 
     // Ensure PATH is set for node-pty spawn (macOS launchd/IDE may have minimal PATH)
     if (!env.PATH) {
-      env.PATH = "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:/opt/local/bin";
+      env.PATH = process.platform === "win32"
+        ? "C:\\Windows\\System32;C:\\Windows;C:\\Program Files\\nodejs"
+        : "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:/opt/local/bin";
     }
 
     let pty: IPty;
     let command = session.command;
     let args = session.args;
     let resolvedPath: string | null = null;
+
+    const knownPaths: Record<string, string[]> = process.platform === "win32" ? {
+      bash: ["C:\\Program Files\\Git\\bin\\bash.exe", "C:\\msys64\\usr\\bin\\bash.exe"],
+      python: ["C:\\Python312\\python.exe", "C:\\Python311\\python.exe", "C:\\Program Files\\Python312\\python.exe"],
+      node: ["C:\\Program Files\\nodejs\\node.exe"],
+      claude: ["C:\\Program Files\\nodejs\\claude.cmd"],
+    } : {
+      bash: ["/bin/bash", "/usr/bin/bash", "/usr/local/bin/bash"],
+      zsh: ["/bin/zsh", "/usr/bin/zsh", "/usr/local/bin/zsh"],
+      sh: ["/bin/sh"],
+      fish: ["/usr/local/bin/fish", "/opt/homebrew/bin/fish"],
+      python: ["/usr/bin/python3", "/usr/local/bin/python3", "/opt/homebrew/bin/python3"],
+      node: ["/usr/local/bin/node", "/opt/homebrew/bin/node"],
+      claude: ["/usr/local/bin/claude", "/opt/homebrew/bin/claude"],
+      htop: ["/usr/bin/htop", "/usr/local/bin/htop", "/opt/homebrew/bin/htop"],
+    };
 
     // Resolve command path for cross-platform compatibility:
     // - Windows: .cmd scripts need cmd.exe /c wrapper
@@ -132,16 +151,6 @@ class SessionManager {
       } catch { /* which failed */ }
       // Fallback: common absolute paths for well-known commands
       if (!resolvedPath) {
-        const knownPaths: Record<string, string[]> = {
-          bash: ["/bin/bash", "/usr/bin/bash", "/usr/local/bin/bash"],
-          zsh: ["/bin/zsh", "/usr/bin/zsh", "/usr/local/bin/zsh"],
-          sh: ["/bin/sh"],
-          fish: ["/usr/local/bin/fish", "/opt/homebrew/bin/fish"],
-          python: ["/usr/bin/python3", "/usr/local/bin/python3", "/opt/homebrew/bin/python3"],
-          node: ["/usr/local/bin/node", "/opt/homebrew/bin/node"],
-          claude: ["/usr/local/bin/claude", "/opt/homebrew/bin/claude"],
-          htop: ["/usr/bin/htop", "/usr/local/bin/htop", "/opt/homebrew/bin/htop"],
-        };
         const candidates = knownPaths[session.command];
         if (candidates) {
           resolvedPath = candidates.find((p) => existsSync(p)) ?? null;
