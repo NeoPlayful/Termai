@@ -19,17 +19,6 @@ const DARK_THEME: ITheme = {
   brightCyan: "#64d2ff", brightWhite: "#ffffff",
 };
 
-const LIGHT_THEME: ITheme = {
-  background: "#ffffff", foreground: "#111827", cursor: "#111827",
-  selectionBackground: "#dbeafe",
-  black: "#1f2937", red: "#dc2626", green: "#16a34a",
-  yellow: "#ca8a04", blue: "#2563eb", magenta: "#7c3aed",
-  cyan: "#0891b2", white: "#374151",
-  brightBlack: "#6b7280", brightRed: "#dc2626", brightGreen: "#16a34a",
-  brightYellow: "#ca8a04", brightBlue: "#2563eb", brightMagenta: "#7c3aed",
-  brightCyan: "#0891b2", brightWhite: "#111827",
-};
-
 interface TerminalViewProps {
   sessionId: string;
   session: SessionMeta | null;
@@ -135,8 +124,14 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     // Send initial resize after connect
     setTimeout(fit, 200);
 
-    // Input handler
+    // Input handler - block all escape sequences xterm auto-sends (DA queries etc.)
     term.onData((data) => {
+      // Block any data starting with ESC that isn't user-typed
+      // DA responses: \x1b[>1;2c, \x1b[?...c, \x1b[c
+      // Also block \x1b[>0c \x1bP...\x1b\\ etc.
+      if (data.startsWith("\x1b[") && data.endsWith("c")) return;
+      if (data.startsWith("\x1b[>")) return;
+      if (data.startsWith("\x1bP")) return;
       send({ type: "input", data });
     });
 
@@ -148,12 +143,11 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     };
   }, [sessionId, send]);
 
-  // Sync xterm theme when settings theme changes
+  // Terminal always uses dark theme regardless of UI theme
   useEffect(() => {
     const term = xtermRef.current;
     if (!term) return;
-    term.options.theme = currentTheme === "dark" || currentTheme === "system"
-      ? DARK_THEME : LIGHT_THEME;
+    term.options.theme = DARK_THEME;
   }, [currentTheme]);
 
   // Sync xterm font size when settings change
