@@ -6,10 +6,12 @@ import { config } from "./config.js";
 import * as db from "./db.js";
 import type { SessionMeta, SessionConfig, SessionStatus } from "./types.js";
 
+type Client = { send: (msg: string) => void };
+
 interface Session extends SessionMeta {
   pty: IPty | null;
   scrollback: string[];
-  clients: Set<{ send: (msg: string) => void }>;
+  clients: Map<Client, { cols: number; rows: number }>;
 }
 
 class SessionManager {
@@ -28,7 +30,7 @@ class SessionManager {
         pid: null,
         pty: null,
         scrollback: [],
-        clients: new Set(),
+        clients: new Map(),
       };
       // Persist corrected status back to DB
       db.updateSessionStatus(meta.id, "stopped", null);
@@ -83,7 +85,7 @@ class SessionManager {
       ...meta,
       pty: null,
       scrollback: [],
-      clients: new Set(),
+      clients: new Map(),
     };
 
     this.sessions.set(cfg.id, session);
@@ -172,7 +174,7 @@ class SessionManager {
         type: "error",
         message: `Failed to start "${session.command}": ${err instanceof Error ? err.message : "Unknown error"}`,
       });
-      for (const client of session.clients) {
+      for (const [client] of session.clients) {
         try { client.send(msg); } catch { /* ignore */ }
       }
       return;
@@ -187,7 +189,7 @@ class SessionManager {
       const msg = JSON.stringify({ type: "output", data });
 
       // Broadcast to all connected clients
-      for (const client of session.clients) {
+      for (const [client] of session.clients) {
         try {
           client.send(msg);
         } catch {
@@ -213,7 +215,7 @@ class SessionManager {
         type: "status",
         status: "process_exited",
       });
-      for (const client of session.clients) {
+      for (const [client] of session.clients) {
         try {
           client.send(exitMsg);
         } catch {
@@ -266,14 +268,20 @@ class SessionManager {
     session.lastActiveAt = new Date().toISOString();
   }
 
-  resize(id: string, cols: number, rows: number): void {
+  resize(id: string, client: Client, cols: number, rows: number): void {
     const session = this.sessions.get(id);
-    if (!session?.pty) return;
+    if (!session) return;
+    // Update this client's size
+    const existing = session.clients.get(client);
+    if (existing) {
+      existing.cols = cols;
+      existing.rows = rows;
+    }
+    if (!session.pty) return;
+    // Use the last client's size (the one that just resized)
     try {
       session.pty.resize(cols, rows);
-    } catch {
-      // ignore resize errors
-    }
+    } catch { /* ignore resize errors */ }
   }
 
   attachClient(id: string, client: { send: (msg: string) => void }): void {
@@ -285,7 +293,7 @@ class SessionManager {
       this.startPty(id);
     }
 
-    session.clients.add(client);
+    session.clients.set(client, { cols: 80, rows: 24 });
     db.upsertSession({ ...session, clientCount: session.clients.size });
 
     // If PTY failed to start, notify client

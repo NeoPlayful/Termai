@@ -6,6 +6,12 @@
 
 ---
 
+## Demo
+
+![image-20260525112200330](/Users/neo.playful/Documents/vibe-code/termai/docs/image-20260525112200330.png)
+
+
+
 ## 系统要求
 
 | 环境 | 版本 |

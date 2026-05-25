@@ -125,9 +125,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
       resizeTimer = setTimeout(() => {
         fitAddon.fit();
         const dims = fitAddon.proposeDimensions();
-        if (dims) {
-          send({ type: "resize", cols: dims.cols, rows: dims.rows });
-        }
+        if (dims) send({ type: "resize", cols: dims.cols, rows: dims.rows });
       }, 100);
     };
 
