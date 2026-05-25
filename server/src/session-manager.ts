@@ -282,8 +282,17 @@ class SessionManager {
       existing.rows = rows;
     }
     // Only resize PTY when there's a single client — multiple clients would
-    // cause SIGWINCH storms and corrupt each other's terminal layout
-    if (!session.pty || session.clients.size !== 1) return;
+    // cause SIGWINCH storms and corrupt each other's terminal layout.
+    // Exception: in multi-client mode, allow cols-only resize (keep rows stable
+    // so TUI programs like Hermes don't re-render their height layout).
+    if (!session.pty) return;
+    const ptyCols = (session.pty as any).cols ?? 80;
+    const ptyRows = (session.pty as any).rows ?? 24;
+    if (session.clients.size > 1) {
+      if (cols === ptyCols) return; // no change
+      try { session.pty.resize(cols, ptyRows); } catch { /* ignore */ }
+      return;
+    }
     try {
       session.pty.resize(cols, rows);
     } catch { /* ignore resize errors */ }
