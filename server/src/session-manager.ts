@@ -278,15 +278,9 @@ class SessionManager {
       existing.rows = rows;
     }
     if (!session.pty) return;
-    // Resize PTY to the minimum size across all clients
-    let minCols = cols;
-    let minRows = rows;
-    for (const size of session.clients.values()) {
-      if (size.cols < minCols) minCols = size.cols;
-      if (size.rows < minRows) minRows = size.rows;
-    }
+    // Use the last client's size (the one that just resized)
     try {
-      session.pty.resize(minCols, minRows);
+      session.pty.resize(cols, rows);
     } catch { /* ignore resize errors */ }
   }
 
