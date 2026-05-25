@@ -15,7 +15,7 @@ export const Tabs = memo(function Tabs() {
   }
 
   return (
-    <div className="h-8 flex items-stretch overflow-x-auto" style={{backgroundColor: 'var(--bg-tab-bar)', borderBottom: '1px solid var(--border-default)'}}>
+    <div className="h-8 flex items-stretch overflow-x-auto tab-scroll" style={{backgroundColor: 'var(--bg-tab-bar)', borderBottom: '1px solid var(--border-default)'}}>
       {tabs.map((tab) => (
         <div
           key={tab.sessionId}
