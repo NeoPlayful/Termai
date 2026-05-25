@@ -38,10 +38,15 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     xtermRef.current?.write(data);
   }, []);
 
-  const onStatus = useCallback((s: string) => {
+  const onStatus = useCallback((s: string, cols?: number, rows?: number) => {
     setStatus(s);
     if (s === "connected") {
-      xtermRef.current?.focus();
+      const term = xtermRef.current;
+      if (term && cols && rows) {
+        // Use server PTY size to keep all clients in sync
+        term.resize(cols, rows);
+      }
+      term?.focus();
     }
   }, []);
 
@@ -97,8 +102,11 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     term.open(containerRef.current);
     xtermRef.current = term;
 
-    // Fit terminal to container
+    const isTouchDevice = navigator.maxTouchPoints > 0;
+
+    // Fit terminal to container (desktop only)
     const fit = () => {
+      if (isTouchDevice) return;
       try {
         fitAddon.fit();
       } catch {
@@ -112,6 +120,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
     const onResize = () => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
+        if (isTouchDevice) return;
         fitAddon.fit();
         const dims = fitAddon.proposeDimensions();
         if (dims) send({ type: "resize", cols: dims.cols, rows: dims.rows });
@@ -183,8 +192,10 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
         <span style={{color: 'var(--text-secondary)'}}>{sessionId}</span>
         <span className="ml-auto" style={{color: 'var(--text-muted)'}}>{status === "connected" ? "connected" : status}</span>
       </div>
-      {/* Terminal - bg matches xterm theme to prevent white flash on init */}
-      <div ref={containerRef} className="flex-1" style={{backgroundColor: 'var(--bg-terminal)'}} />
+      {/* Terminal - horizontal scroll wrapper */}
+      <div className="flex-1 overflow-x-auto" style={{backgroundColor: 'var(--bg-terminal)'}}>
+        <div ref={containerRef} style={{backgroundColor: 'var(--bg-terminal)', minWidth: 480, height: '100%'}} />
+      </div>
       {session && <StatusBar session={session} />}
     </div>
   );
