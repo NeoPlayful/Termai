@@ -216,7 +216,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
       </div>
       {/* Terminal - horizontal scroll wrapper */}
       <div className="flex-1 overflow-x-auto" style={{backgroundColor: 'var(--bg-terminal)'}}>
-        <div style={{maxWidth: 1100, height: '100%'}}>
+        <div style={{maxWidth: isMobile ? undefined : 1100, height: '100%'}}>
           <div ref={containerRef} style={{backgroundColor: 'var(--bg-terminal)', minWidth: 480, height: '100%'}} />
         </div>
       </div>
