@@ -22,6 +22,9 @@ echo "[2/4] Installing web dependencies..."
 cd "$DIR/web"
 npm install
 
+# Fix node-pty spawn-helper permissions (macOS: prebuild lacks execute bit)
+find "$DIR/server/node_modules/node-pty/prebuilds" -name "spawn-helper" -exec chmod +x {} \; 2>/dev/null || true
+
 echo "[3/4] Starting server (port 6688)..."
 cd "$DIR/server"
 npm run dev &
