@@ -1,0 +1,73 @@
+[
+  {
+    "id": "bash",
+    "name": "Bash Shell",
+    "description": "标准 Bash 终端",
+    "command": "bash",
+    "icon": "CodeBracket",
+    "group": "Shells"
+  },
+  {
+    "id": "cmd",
+    "name": "Command Prompt",
+    "description": "Windows 命令提示符",
+    "command": "cmd.exe",
+    "icon": "CommandLine",
+    "platform": ["win32"],
+    "group": "Shells"
+  },
+  {
+    "id": "powershell",
+    "name": "PowerShell",
+    "description": "Windows PowerShell",
+    "command": "powershell.exe",
+    "icon": "Square2Stack",
+    "platform": ["win32"],
+    "group": "Shells"
+  },
+  {
+    "id": "claude-code",
+    "name": "Claude Code",
+    "description": "AI 编程助手",
+    "command": "claude",
+    "args": ["--dangerously-skip-permissions"],
+    "env": { "TERM": "xterm-256color" },
+    "icon": "Sparkles",
+    "group": "AI Tools"
+  },
+  {
+    "id": "claude-code-auto",
+    "name": "Claude Code (Auto)",
+    "description": "Claude Code 自动权限模式",
+    "command": "claude",
+    "args": ["--permission-mode", "auto"],
+    "env": { "TERM": "xterm-256color" },
+    "icon": "Sparkles",
+    "group": "AI Tools"
+  },
+  {
+    "id": "hermes",
+    "name": "Hermes",
+    "description": "Hermes 终端",
+    "command": "hermes",
+    "icon": "CommandLine",
+    "group": "Tools"
+  },
+  {
+    "id": "ssh-server",
+    "name": "SSH Remote Server",
+    "description": "连接到远程 Linux 服务器",
+    "command": "ssh",
+    "args": ["user@server.example.com"],
+    "icon": "ServerStack",
+    "group": "Connections"
+  },
+  {
+    "id": "htop",
+    "name": "System Monitor (htop)",
+    "description": "实时系统监控",
+    "command": "htop",
+    "icon": "ChartBarSquare",
+    "group": "Tools"
+  }
+]

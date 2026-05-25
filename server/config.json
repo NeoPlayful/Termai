@@ -1,0 +1,7 @@
+{
+  "port": 6688,
+  "host": "0.0.0.0",
+  "authToken": null,
+  "maxSessions": 10,
+  "scrollbackSize": 100000
+}
