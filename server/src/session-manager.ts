@@ -281,21 +281,18 @@ class SessionManager {
       existing.cols = cols;
       existing.rows = rows;
     }
-    if (!session.pty) return;
-    // Use the largest dimensions across all clients to avoid small screens shrinking the PTY
-    let maxCols = 0, maxRows = 0;
-    for (const [, dims] of session.clients) {
-      if (dims.cols > maxCols) maxCols = dims.cols;
-      if (dims.rows > maxRows) maxRows = dims.rows;
-    }
+    // Only resize PTY when there's a single client — multiple clients would
+    // cause SIGWINCH storms and corrupt each other's terminal layout
+    if (!session.pty || session.clients.size !== 1) return;
     try {
-      session.pty.resize(maxCols || cols, maxRows || rows);
+      session.pty.resize(cols, rows);
     } catch { /* ignore resize errors */ }
   }
 
   attachClient(id: string, client: { send: (msg: string) => void }): void {
     const session = this.sessions.get(id);
     if (!session) return;
+    console.log(`[attach] session=${id} clients_before=${session.clients.size}`);
 
     // Auto-restart PTY if not running
     if (!session.pty) {
@@ -317,8 +314,10 @@ class SessionManager {
     }
 
     // Send PTY size first so client resizes xterm before receiving scrollback
+    // multiClient: true tells the new client not to send resize (would cause SIGWINCH on others)
+    const isMultiClient = session.clients.size > 1;
     const ptySize = { cols: (session.pty as any).cols ?? 80, rows: (session.pty as any).rows ?? 24 };
-    client.send(JSON.stringify({ type: "status", status: "connected", ...ptySize }));
+    client.send(JSON.stringify({ type: "status", status: "connected", ...ptySize, multiClient: isMultiClient }));
 
     // Send scrollback history
     for (const chunk of session.scrollback) {
@@ -333,6 +332,7 @@ class SessionManager {
   detachClient(id: string, client: { send: (msg: string) => void }): void {
     const session = this.sessions.get(id);
     if (!session) return;
+    console.log(`[detach] session=${id} clients_before=${session.clients.size}`);
     session.clients.delete(client);
   }
 }

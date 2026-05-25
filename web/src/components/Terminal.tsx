@@ -29,6 +29,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
   const containerRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
+  const multiClientRef = useRef(false);
   const [status, setStatus] = useState("connecting");
   const currentTheme = settingsStore((s) => s.theme);
   const currentFontSize = settingsStore((s) => s.fontSize);
@@ -39,9 +40,10 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
     xtermRef.current?.write(data);
   }, []);
 
-  const onStatus = useCallback((s: string, cols?: number, rows?: number) => {
+  const onStatus = useCallback((s: string, cols?: number, rows?: number, multiClient?: boolean) => {
     setStatus(s);
     if (s === "connected") {
+      multiClientRef.current = !!multiClient;
       const term = xtermRef.current;
       if (term && cols && rows) {
         // Use server PTY size to keep all clients in sync
@@ -122,6 +124,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         if (isTouchDevice) return;
+        if (multiClientRef.current) return; // don't resize PTY when sharing session
         const dims = fitAddon.proposeDimensions();
         if (!dims || dims.cols <= 0 || dims.rows <= 0) return;
         fitAddon.fit();
@@ -169,6 +172,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
     const wasActive = prevActiveRef.current;
     prevActiveRef.current = !!isActive;
     if (!isActive || wasActive) return;
+    if (multiClientRef.current) return;
     const fit = fitAddonRef.current;
     if (!fit) return;
     const dims = fit.proposeDimensions();
@@ -212,7 +216,9 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
       </div>
       {/* Terminal - horizontal scroll wrapper */}
       <div className="flex-1 overflow-x-auto" style={{backgroundColor: 'var(--bg-terminal)'}}>
-        <div ref={containerRef} style={{backgroundColor: 'var(--bg-terminal)', minWidth: 480, height: '100%'}} />
+        <div style={{maxWidth: 1100, height: '100%'}}>
+          <div ref={containerRef} style={{backgroundColor: 'var(--bg-terminal)', minWidth: 480, height: '100%'}} />
+        </div>
       </div>
       {session && <StatusBar session={session} />}
     </div>
