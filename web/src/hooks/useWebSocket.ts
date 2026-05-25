@@ -4,7 +4,7 @@ import type { WSServerMessage, WSClientMessage } from "../types.ts";
 interface UseWebSocketOptions {
   sessionId: string | null;
   onOutput: (data: string) => void;
-  onStatus: (status: string) => void;
+  onStatus: (status: string, cols?: number, rows?: number) => void;
   onError: (message: string) => void;
 }
 
@@ -57,7 +57,7 @@ export function useWebSocket({ sessionId, onOutput, onStatus, onError }: UseWebS
             onOutputRef.current(msg.data);
             break;
           case "status":
-            onStatusRef.current(msg.status);
+            onStatusRef.current(msg.status, msg.cols, msg.rows);
             break;
           case "error":
             onErrorRef.current(msg.message);

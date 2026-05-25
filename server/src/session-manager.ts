@@ -271,14 +271,12 @@ class SessionManager {
   resize(id: string, client: Client, cols: number, rows: number): void {
     const session = this.sessions.get(id);
     if (!session) return;
-    // Update this client's size
     const existing = session.clients.get(client);
     if (existing) {
       existing.cols = cols;
       existing.rows = rows;
     }
     if (!session.pty) return;
-    // Use the last client's size (the one that just resized)
     try {
       session.pty.resize(cols, rows);
     } catch { /* ignore resize errors */ }
@@ -307,6 +305,10 @@ class SessionManager {
       return;
     }
 
+    // Send PTY size first so client resizes xterm before receiving scrollback
+    const ptySize = { cols: (session.pty as any).cols ?? 80, rows: (session.pty as any).rows ?? 24 };
+    client.send(JSON.stringify({ type: "status", status: "connected", ...ptySize }));
+
     // Send scrollback history
     for (const chunk of session.scrollback) {
       try {
@@ -315,8 +317,6 @@ class SessionManager {
         break;
       }
     }
-
-    client.send(JSON.stringify({ type: "status", status: "connected" }));
   }
 
   detachClient(id: string, client: { send: (msg: string) => void }): void {

@@ -27,5 +27,5 @@ export type WSClientMessage =
 
 export type WSServerMessage =
   | { type: "output"; data: string }
-  | { type: "status"; status: string }
+  | { type: "status"; status: string; cols?: number; rows?: number }
   | { type: "error"; message: string };
