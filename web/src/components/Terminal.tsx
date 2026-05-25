@@ -141,6 +141,8 @@ export const TerminalView = memo(function TerminalView({ sessionId, session }: T
       if (data.startsWith("\x1b[") && data.endsWith("c")) return;
       if (data.startsWith("\x1b[>")) return;
       if (data.startsWith("\x1bP")) return;
+      // Block CPR responses: ESC[row;colR (cursor position report)
+      if (data.startsWith("\x1b[") && data.endsWith("R") && /^\x1b\[\d+;\d+R$/.test(data)) return;
       send({ type: "input", data });
     });
 

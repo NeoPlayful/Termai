@@ -185,8 +185,13 @@ class SessionManager {
     session.status = "running";
     session.lastActiveAt = new Date().toISOString();
 
+    // CPR responses (ESC[row;colR) echoed back by PTY — strip them from output
+    const CPR_RE = /\x1b\[\d+;\d+R/g;
+
     pty.onData((data: string) => {
-      const msg = JSON.stringify({ type: "output", data });
+      const filtered = data.replace(CPR_RE, "");
+      if (!filtered) return;
+      const msg = JSON.stringify({ type: "output", data: filtered });
 
       // Broadcast to all connected clients
       for (const [client] of session.clients) {
@@ -198,7 +203,7 @@ class SessionManager {
       }
 
       // Maintain scrollback buffer
-      session.scrollback.push(data);
+      session.scrollback.push(filtered);
       if (session.scrollback.length > config.scrollbackSize) {
         session.scrollback.shift();
       }
