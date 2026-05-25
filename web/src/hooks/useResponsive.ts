@@ -37,9 +37,10 @@ export function useResponsive(): ResponsiveState {
     if (breakpoint === "lg") setSidebarOpen(false);
   }, [breakpoint]);
 
-  const isMobile = breakpoint === "sm";
-  const isTablet = breakpoint === "md";
-  const isDesktop = breakpoint === "lg";
+  const isTouchDevice = navigator.maxTouchPoints > 0;
+  const isMobile = isTouchDevice || breakpoint === "sm";
+  const isTablet = !isTouchDevice && breakpoint === "md";
+  const isDesktop = !isTouchDevice && breakpoint === "lg";
 
   return { breakpoint, isMobile, isTablet, isDesktop, sidebarOpen, setSidebarOpen };
 }
