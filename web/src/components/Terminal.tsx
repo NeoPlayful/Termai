@@ -164,8 +164,11 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
   }, [currentTheme]);
 
   // Re-fit when tab becomes active (was hidden, now visible)
+  const prevActiveRef = useRef(false);
   useEffect(() => {
-    if (!isActive) return;
+    const wasActive = prevActiveRef.current;
+    prevActiveRef.current = !!isActive;
+    if (!isActive || wasActive) return;
     const fit = fitAddonRef.current;
     if (!fit) return;
     const dims = fit.proposeDimensions();

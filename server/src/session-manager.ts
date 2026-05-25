@@ -282,8 +282,14 @@ class SessionManager {
       existing.rows = rows;
     }
     if (!session.pty) return;
+    // Use the largest dimensions across all clients to avoid small screens shrinking the PTY
+    let maxCols = 0, maxRows = 0;
+    for (const [, dims] of session.clients) {
+      if (dims.cols > maxCols) maxCols = dims.cols;
+      if (dims.rows > maxRows) maxRows = dims.rows;
+    }
     try {
-      session.pty.resize(cols, rows);
+      session.pty.resize(maxCols || cols, maxRows || rows);
     } catch { /* ignore resize errors */ }
   }
 
