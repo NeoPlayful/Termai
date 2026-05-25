@@ -38,7 +38,7 @@ export function registerTerminalWS(fastify: FastifyInstance): void {
               sessionManager.write(sessionId, msg.data);
               break;
             case "resize":
-              sessionManager.resize(sessionId, msg.cols, msg.rows);
+              sessionManager.resize(sessionId, client, msg.cols, msg.rows);
               break;
           }
         } catch {
