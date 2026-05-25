@@ -30,6 +30,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const multiClientRef = useRef(false);
+  const ptySizeRef = useRef({ cols: 80, rows: 24 });
   const [status, setStatus] = useState("connecting");
   const currentTheme = settingsStore((s) => s.theme);
   const currentFontSize = settingsStore((s) => s.fontSize);
@@ -46,7 +47,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
       multiClientRef.current = !!multiClient;
       const term = xtermRef.current;
       if (term && cols && rows) {
-        // Use server PTY size to keep all clients in sync
+        ptySizeRef.current = { cols, rows };
         term.resize(cols, rows);
       }
       term?.focus();
@@ -124,11 +125,12 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         if (isTouchDevice) return;
-        if (multiClientRef.current) return; // don't resize PTY when sharing session
         const dims = fitAddon.proposeDimensions();
         if (!dims || dims.cols <= 0 || dims.rows <= 0) return;
         fitAddon.fit();
-        send({ type: "resize", cols: dims.cols, rows: dims.rows });
+        // In multi-client mode, keep rows stable to avoid TUI height re-renders
+        const rows = multiClientRef.current ? ptySizeRef.current.rows : dims.rows;
+        send({ type: "resize", cols: dims.cols, rows });
       }, 100);
     };
 
@@ -172,13 +174,13 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
     const wasActive = prevActiveRef.current;
     prevActiveRef.current = !!isActive;
     if (!isActive || wasActive) return;
-    if (multiClientRef.current) return;
     const fit = fitAddonRef.current;
     if (!fit) return;
     const dims = fit.proposeDimensions();
     if (!dims || dims.cols <= 0 || dims.rows <= 0) return;
     fit.fit();
-    send({ type: "resize", cols: dims.cols, rows: dims.rows });
+    const rows = multiClientRef.current ? ptySizeRef.current.rows : dims.rows;
+    send({ type: "resize", cols: dims.cols, rows });
   }, [isActive, send]);
 
   // Sync xterm font size when settings change
@@ -216,7 +218,7 @@ export const TerminalView = memo(function TerminalView({ sessionId, session, isA
       </div>
       {/* Terminal - horizontal scroll wrapper */}
       <div className="flex-1 overflow-x-auto" style={{backgroundColor: 'var(--bg-terminal)'}}>
-        <div style={{maxWidth: isMobile ? undefined : 1100, height: '100%'}}>
+        <div style={{maxWidth: isMobile ? undefined : 1100, height: '100%', width: '100%'}}>
           <div ref={containerRef} style={{backgroundColor: 'var(--bg-terminal)', minWidth: 480, height: '100%'}} />
         </div>
       </div>
