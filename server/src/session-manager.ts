@@ -292,6 +292,7 @@ class SessionManager {
   attachClient(id: string, client: { send: (msg: string) => void }): void {
     const session = this.sessions.get(id);
     if (!session) return;
+    console.log(`[attach] session=${id} clients_before=${session.clients.size}`);
 
     // Auto-restart PTY if not running
     if (!session.pty) {
@@ -331,6 +332,7 @@ class SessionManager {
   detachClient(id: string, client: { send: (msg: string) => void }): void {
     const session = this.sessions.get(id);
     if (!session) return;
+    console.log(`[detach] session=${id} clients_before=${session.clients.size}`);
     session.clients.delete(client);
   }
 }
